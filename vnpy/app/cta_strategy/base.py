@@ -45,6 +45,11 @@ class StopOrder:
 EVENT_CTA_LOG = "eCtaLog"
 EVENT_CTA_STRATEGY = "eCtaStrategy"
 EVENT_CTA_STOPORDER = "eCtaStopOrder"
+EVENT_CTA_TICK = "eCtaTick"                     # hxxjava add
+EVENT_CTA_HISTORY_BAR = "eCtaHistoryBar"        # hxxjava add
+EVENT_CTA_BAR = "eCtaBar"                       # hxxjava add
+EVENT_CTA_ORDER = "eCtaOrder"                   # hxxjava add  
+EVENT_CTA_TRADE = "eCtaTrade"                   # hxxjava add
 
 INTERVAL_DELTA_MAP = {
     Interval.MINUTE: timedelta(minutes=1),

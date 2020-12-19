@@ -302,6 +302,14 @@ class ChartWidget(pg.PlotWidget):
         self._cursor.update_info()
 
 
+
+    def get_item(self,item_name:str):#hxxjava add
+        """
+        Get chart item by item's name.
+        """
+        return self._items.get(item_name,None)    
+    
+
 class ChartCursor(QtCore.QObject):
     """"""
 
