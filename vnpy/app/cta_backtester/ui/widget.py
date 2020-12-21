@@ -478,6 +478,8 @@ class BacktesterManager(QtWidgets.QWidget):
         """"""
         if not self.candle_dialog.is_updated():
             history = self.backtester_engine.get_history_data()
+            #from vnpy.usertools.kx_chart import ConvertBar
+            #newhistory=ConvertBar(history,60)
             self.candle_dialog.update_history(history)
 
             trades = self.backtester_engine.get_all_trades()

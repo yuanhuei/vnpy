@@ -8,10 +8,10 @@ from datetime import datetime
 #%%
 engine = BacktestingEngine()
 engine.set_parameters(
-    vt_symbol="rb88.SHFE",
+    vt_symbol="rb888.SHFE",
     interval="1m",
-    start=datetime(2016, 3, 1),
-    end=datetime(2016, 4, 20),
+    start=datetime(2015, 11, 20),
+    end=datetime(2016, 6, 1),
     rate=0.3/10000,
     slippage=1,
     size=10,

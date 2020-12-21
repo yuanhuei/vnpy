@@ -11,9 +11,9 @@ from vnpy.trader.rqdata import rqdata_client
     
 def covertfile():
 
-    file_path='d:\\vnpy\\TExHisData_ag.csv'
-    symbol="if888"
-    exchange=Exchange.CFFEX
+    file_path='d:\\vnpy\\TExHisData_rb888.csv'
+    symbol="rb888"
+    exchange=Exchange.SHFE
     interval=Interval.MINUTE
     date_head="Date"
     time_head="Time"
@@ -113,7 +113,7 @@ def covertfile():
         "volume",
         "open_interest"
     ]
-    file_path='d:\\vnpy\\TExHisData_ag1.csv'
+    file_path='d:\\vnpy\\TExHisData_rb8881.csv'
     try:
         with open(file_path, "w") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")

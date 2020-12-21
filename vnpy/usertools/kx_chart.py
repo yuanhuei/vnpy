@@ -222,6 +222,51 @@ class NewChartWidget(ChartWidget):
 
 
 
+def ConvertBar(bars,show_minute):
+    newbars=[]
+    i=len(bars)//show_minute
+    if len(bars)>show_minute*i:
+        i=i+1
+    newbars=[x for x in range(i)]
+
+    
+    i=0
+    while i<((len(bars)//show_minute)+1):
+        if len(bars)==show_minute*i:
+            break
+        datetime=bars[show_minute*i].datetime
+        symbol=bars[show_minute*i].symbol
+        exchange=bars[show_minute*i].exchange
+        interval=bars[show_minute*i].interval
+        volume=bars[show_minute*i].volume
+        open_interest=bars[show_minute*i].open_interest
+        open_price=bars[show_minute*i].open_price
+        close_price=bars[show_minute*i].close_price
+        high_price=bars[show_minute*i].high_price
+        low_price=bars[show_minute*i].low_price
+        j=1
+        while j <show_minute:
+            if (show_minute*i+j)==len(bars):
+                break
+            high_price=max(high_price,bars[show_minute*i+j].high_price)
+            low_price=min(low_price,bars[show_minute*i+j].low_price)
+            close_price=bars[show_minute*i+j].close_price
+            j=j+1
+        newbars[i] = BarData(
+            symbol=symbol,
+            exchange=Exchange(exchange),
+            datetime=datetime,
+            interval=Interval(interval),
+            volume=volume,
+            open_price=open_price,
+            high_price=high_price,
+            open_interest=open_interest,
+            low_price=low_price,
+            close_price=close_price,
+            gateway_name="DB"
+        )        
+        i=i+1
+    return newbars
 ################################################################
 # 以下为测试代码
 if __name__ == "__main__":
@@ -279,11 +324,11 @@ if __name__ == "__main__":
     app = create_qapp()
     import sys
     print(sys.path)
-    symbol = "rb88"
+    symbol = "rb888"
     exchange = Exchange.SHFE
     interval=Interval.MINUTE
-    start=datetime(2015, 12, 1)
-    end=datetime(2015, 12, 2)    
+    start=datetime(2015, 11, 2)
+    end=datetime(2016, 6, 1)    
 
     dynamic = False  # 是否动态演示
     n = 1000          # 缓冲K线根数
@@ -300,52 +345,10 @@ if __name__ == "__main__":
     print(f"一共读取{len(bars)}根1minute K线")
     print(f"一共读取{len(bars)//show_minute}根{show_minute}minute K线")
     
-    
-    newbars=[]
-    i=len(bars)//show_minute
-    if len(bars)>show_minute*i:
-        i=i+1
-    newbars=[x for x in range(i)]
 
-    
-    i=0
-    while i<((len(bars)//show_minute)+1):
-        if len(bars)==show_minute*i:
-            break
-        datetime=bars[show_minute*i].datetime
-        symbol=bars[show_minute*i].symbol
-        exchange=bars[show_minute*i].exchange
-        interval=bars[show_minute*i].interval
-        volume=bars[show_minute*i].volume
-        open_interest=bars[show_minute*i].open_interest
-        open_price=bars[show_minute*i].open_price
-        close_price=bars[show_minute*i].close_price
-        high_price=bars[show_minute*i].high_price
-        low_price=bars[show_minute*i].low_price
-        j=1
-        while j <show_minute:
-            if (show_minute*i+j)==len(bars):
-                break
-            high_price=max(high_price,bars[show_minute*i+j].high_price)
-            low_price=min(low_price,bars[show_minute*i+j].low_price)
-            close_price=bars[show_minute*i+j].close_price
-            j=j+1
-        newbars[i] = BarData(
-            symbol=symbol,
-            exchange=Exchange(exchange),
-            datetime=datetime,
-            interval=Interval(interval),
-            volume=volume,
-            open_price=open_price,
-            high_price=high_price,
-            open_interest=open_interest,
-            low_price=low_price,
-            close_price=close_price,
-            gateway_name="DB"
-        )        
-        i=i+1
         
-
+    newbars=ConvertBar(bars,420)
+    
     print(f"一共读取{len(bars)}根K线")
 
     event_engine = EventEngine()

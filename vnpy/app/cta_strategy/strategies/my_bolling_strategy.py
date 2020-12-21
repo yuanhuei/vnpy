@@ -28,6 +28,7 @@ from vnpy.trader.vtFunction import getTempPath
 """
 ########################################################################
 import csv
+from vnpy.trader.constant import Exchange, Interval,Offset,Direction
 from vnpy.app.cta_strategy import (
     CtaTemplate,
     StopOrder,
@@ -66,7 +67,7 @@ class MyBollingStrategy(CtaTemplate):
     DayTrendStatus='panzhen'  #DuoTou, KongTou,Panzheng
     FifteenMinTrendStatus='panzhen'
     FiveMinTrendStatus='panzhen'
-    ThirtyMinTrendStatus="panzhen"
+    ThirtyMinTrendStatus='panzhen'
     
 
     # 5Min策略变量    
@@ -168,7 +169,7 @@ class MyBollingStrategy(CtaTemplate):
         self.bm30 = BarGenerator(self.on_bar, 30, self.on_30Min_bar)
         self.am30 = ArrayManager(80)                
  
-        self.bmDay = BarGenerator(self.on_bar, 240, self.onDayBar)
+        self.bmDay = BarGenerator(self.on_bar, 4, self.onDayBar,Interval.HOUR)
         self.amDay = ArrayManager(30)                    
         with open("datasig5.csv","wb+") as csvfile: 
             writer = csv.writer(csvfile)
@@ -195,7 +196,7 @@ class MyBollingStrategy(CtaTemplate):
         #for bar in initData:
         #   self.onBar(bar)
 
-        #self.putEvent()
+        #self.put_event()
 
     #----------------------------------------------------------------------
     def on_start(self):
@@ -235,44 +236,44 @@ class MyBollingStrategy(CtaTemplate):
         #判断当前5Min布林线趋势状态
         if not self.am5.inited or not self.am15.inited or not self.am30.inited or not self.amDay.inited:
             return
-        if self.bm5.xminBar !=None:   
-            if self.bm5.xminBar.high > self.bollUp and self.bm5.xminBar.low > self.bollMid:
+        if self.bm5.window_bar !=None:   
+            if self.bm5.window_bar.high_price > self.bollUp and self.bm5.window_bar.low_price > self.bollMid:
                 self.FiveMinTrendStatus='duotou'
-            elif self.bm5.xminBar.low < self.bollDown and self.bm5.xminBar.high < self.bollMid:
+            elif self.bm5.window_bar.low_price < self.bollDown and self.bm5.window_bar.high_price < self.bollMid:
                 self.FiveMinTrendStatus='kongtou'
-            elif self.bm5.xminBar.low < self.bollMid and self.FiveMinTrendStatus=='duotou':
+            elif self.bm5.window_bar.low_price < self.bollMid and self.FiveMinTrendStatus=='duotou':
                 self.FiveMinTrendStatus='panzhen'
-            elif self.bm5.xminBar.high > self.bollMid and self.FiveMinTrendStatus=='kongtou':
+            elif self.bm5.window_bar.high_price > self.bollMid and self.FiveMinTrendStatus=='kongtou':
                 self.FiveMinTrendStatus='panzhen'        
             #判断当前15Min布林线趋势状态
-        if self.bm15.xminBar!=None:
-            if self.bm15.xminBar.high > self.bollUp15 and self.bm15.xminBar.low > self.bollMid15:
+        if self.bm15.window_bar!=None:
+            if self.bm15.window_bar.high_price > self.bollUp15 and self.bm15.window_bar.low_price > self.bollMid15:
                 self.FifteenMinTrendStatus='duotou'
-            elif self.bm15.xminBar.low < self.bollDown15 and self.bm15.xminBar.high < self.bollMid15:
+            elif self.bm15.window_bar.low_price < self.bollDown15 and self.bm15.window_bar.high_price < self.bollMid15:
                 self.FifteenMinTrendStatus='kongtou'
-            elif self.bm15.xminBar.low < self.bollMid15 and self.FifteenMinTrendStatus=='duotou':
+            elif self.bm15.window_bar.low_price < self.bollMid15 and self.FifteenMinTrendStatus=='duotou':
                 self.FifteenMinTrendStatus='panzhen'
-            elif self.bm15.xminBar.high > self.bollMid15 and self.FifteenMinTrendStatus=='kongtou':
+            elif self.bm15.window_bar.high_price > self.bollMid15 and self.FifteenMinTrendStatus=='kongtou':
                 self.FifteenMinTrendStatus='panzhen'
             #判断当前30Min布林线趋势状态
-        if self.bm30.xminBar!=None:
-            if self.bm30.xminBar.high > self.bollUp30 and self.bm30.xminBar.low > self.bollMid30:
+        if self.bm30.window_bar!=None:
+            if self.bm30.window_bar.high_price > self.bollUp30 and self.bm30.window_bar.low_price > self.bollMid30:
                 self.ThirtyMinTrendStatus='duotou'
-            elif self.bm30.xminBar.low < self.bollDown30 and self.bm30.xminBar.high < self.bollMid30:
+            elif self.bm30.window_bar.low_price < self.bollDown30 and self.bm30.window_bar.high_price < self.bollMid30:
                 self.ThirtyMinTrendStatus='kongtou'
-            elif self.bm30.xminBar.low < self.bollMid30 and self.ThirtyMinTrendStatus=='duotou':
+            elif self.bm30.window_bar.low_price < self.bollMid30 and self.ThirtyMinTrendStatus=='duotou':
                 self.ThirtyMinTrendStatus='panzhen'
-            elif self.bm30.xminBar.high > self.bollMid30 and self.ThirtyMinTrendStatus=='kongtou':
+            elif self.bm30.window_bar.high_price > self.bollMid30 and self.ThirtyMinTrendStatus=='kongtou':
                 self.ThirtyMinTrendStatus='panzhen'
             #判断当前日线布林线趋势状态
-        if self.bmDay.xminBar!=None:
-            if self.bmDay.xminBar.high > self.bollUpDay and self.bmDay.xminBar.low > self.bollMidDay:
+        if self.bmDay.window_bar!=None:
+            if self.bmDay.window_bar.high_price > self.bollUpDay and self.bmDay.window_bar.low_price > self.bollMidDay:
                 self.DayTrendStatus='duotou'
-            elif self.bmDay.xminBar.low < self.bollDownDay and self.bmDay.xminBar.high < self.bollMidDay:
+            elif self.bmDay.window_bar.low_price < self.bollDownDay and self.bmDay.window_bar.high_price < self.bollMidDay:
                 self.DayTrendStatus='kongtou'
-            elif self.bmDay.xminBar.low < self.bollMidDay and self.DayTrendStatus=='duotou':
+            elif self.bmDay.window_bar.low_price < self.bollMidDay and self.DayTrendStatus=='duotou':
                 self.DayTrendStatus='panzhen'
-            elif self.bmDay.xminBar.high > self.bollMidDay and self.DayTrendStatus=='kongtou':
+            elif self.bmDay.window_bar.high_price > self.bollMidDay and self.DayTrendStatus=='kongtou':
                 self.DayTrendStatus='panzhen'
         '''
                 
@@ -309,7 +310,7 @@ class MyBollingStrategy(CtaTemplate):
         self.am5.update_bar(bar)
         
         # 撤销之前发出的尚未成交的委托（包括限价单和停止单）
-        self.cancelAll()
+        #self.cancel_all()
         orderList=[]
     
         # 计算指标数值
@@ -317,13 +318,13 @@ class MyBollingStrategy(CtaTemplate):
         self.bollUp,self.bollDown = self.am5.boll(self.bollWindow5min,self.entryDev5min)
 
         #判断当前5Min布林线趋势状态
-        if bar.high > self.Beforebollup and bar.low > self.BeforebollMid:
+        if bar.high_price > self.Beforebollup and bar.low_price > self.BeforebollMid:
             self.FiveMinTrendStatus='duotou'
-        elif bar.low < self.beforebolldown and bar.high < self.BeforebollMid:
+        elif bar.low_price < self.beforebolldown and bar.high_price < self.BeforebollMid:
             self.FiveMinTrendStatus='kongtou'
-        elif bar.low < self.BeforebollMid and self.FiveMinTrendStatus=='duotou':
+        elif bar.low_price < self.BeforebollMid and self.FiveMinTrendStatus=='duotou':
             self.FiveMinTrendStatus='panzhen'
-        elif bar.high > self.BeforebollMid and self.FiveMinTrendStatus=='kongtou':
+        elif bar.high_price > self.BeforebollMid and self.FiveMinTrendStatus=='kongtou':
             self.FiveMinTrendStatus='panzhen'
         '''
         if bar.high > self.bollMid15 and self.FifteenMinTrendStatus == 'kongtou':
@@ -332,7 +333,7 @@ class MyBollingStrategy(CtaTemplate):
             self.FifteenMinTrendStatus=='panzhen'       
         '''   
         # 判断是否要进行交易
-        print (u"策略：%s,5分钟刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.__dict__["name"],self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
+        print (u"策略：%s,5分钟刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.className,self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
         # 当前无仓位，发送OCO开仓委托
         '''        
         if self.pos == 0:
@@ -412,20 +413,20 @@ class MyBollingStrategy(CtaTemplate):
 
     
         #判断当前15Min布林线趋势状态
-        if bar.high > self.Beforebollup15 and bar.low > self.BeforebollMid15:
+        if bar.high_price > self.Beforebollup15 and bar.low_price > self.BeforebollMid15:
             self.FifteenMinTrendStatus='duotou'
-        elif bar.low < self.beforebolldown15 and bar.high < self.BeforebollMid15:
+        elif bar.low_price < self.beforebolldown15 and bar.high_price < self.BeforebollMid15:
             self.FifteenMinTrendStatus='kongtou'
-        elif bar.low < self.BeforebollMid15 and self.FifteenMinTrendStatus=='duotou':
+        elif bar.low_price < self.BeforebollMid15 and self.FifteenMinTrendStatus=='duotou':
             self.FifteenMinTrendStatus='panzhen'
-        elif bar.high > self.BeforebollMid15 and self.FifteenMinTrendStatus=='kongtou':
+        elif bar.high_price > self.BeforebollMid15 and self.FifteenMinTrendStatus=='kongtou':
             self.FifteenMinTrendStatus='panzhen'
    
         with open("datasig15.csv","ab+",) as csvfile: 
             writer = csv.writer(csvfile)
-            writer.writerow([bar.datetime,bar.open, bar.close, bar.high, bar.low,bar.openInterest,bar.volume,self.deal,self.bollDown15,self.bollUp15,self.dealopen])
+            #writer.writerow([bar.datetime,bar.open_price, bar.close_price, bar.high_price, bar.low_price,bar.open_interest,bar.volume,self.deal,self.bollDown15,self.bollUp15,self.dealopen])
         
-        print (u"策略:%s,15分钟刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.__dict__["name"],self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
+        print (u"策略:%s,15分钟刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.className,self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
         #print u"15分钟收盘价",self.am15.closeArray[75:]
         # 当前无仓位，发送OCO开仓委托
         '''
@@ -444,7 +445,7 @@ class MyBollingStrategy(CtaTemplate):
     def on_30Min_bar(self, bar: BarData):
         """30分钟K线推送"""
     
-        if not self.am30.inited or not self.amDay.inited:
+        if not self.am30.inited:# or not self.amDay.inited:
             self.am30.update_bar(bar)
             return
         
@@ -459,30 +460,39 @@ class MyBollingStrategy(CtaTemplate):
 
     
         #判断当前30Min布林线趋势状态
-        if bar.high > self.Beforebollup30 and bar.low > self.BeforebollMid30:
+        if bar.high_price > self.Beforebollup30 and bar.low_price > self.BeforebollMid30:
             self.ThirtyMinTrendStatus='duotou'
-        elif bar.low < self.beforebolldown30 and bar.high < self.BeforebollMid30:
+        elif bar.low_price < self.beforebolldown30 and bar.high_price < self.BeforebollMid30:
             self.ThirtyMinTrendStatus='kongtou'
-        elif bar.low < self.BeforebollMid30 and self.ThirtyMinTrendStatus=='duotou':
+        elif bar.low_price < self.BeforebollMid30 and self.ThirtyMinTrendStatus=='duotou':
             self.ThirtyMinTrendStatus='panzhen'
-        elif bar.high > self.BeforebollMid30 and self.ThirtyMinTrendStatus=='kongtou':
+        elif bar.high_price > self.BeforebollMid30 and self.ThirtyMinTrendStatus=='kongtou':
             self.ThirtyMinTrendStatus='panzhen'
         
+        self.cancel_all()
         if self.pos == 0:
-            self.intraTradeHigh = bar.high
+            self.intraTradeHigh = bar.high_price
             self.longEntry = self.bollUp30
-            self.shortEntry=self.booldown30            
+            self.shortEntry=self.bollDown30            
             if self.ThirtyMinTrendStatus=='panzhen' and self.DayTrendStatus=='duotou':
                 self.buy(self.longEntry, self.fixedSize, True)            
-            else:                      
+            elif self.ThirtyMinTrendStatus=='panzhen' and self.DayTrendStatus=='kongtou':                     
                 self.short(self.shortEntry,self.fixedSize,True)
-           
+        # 持有多头仓位
+        elif self.pos > 0:
+            orderList=self.sell(self.bollDown30-self.priceTick, abs(self.pos), True)
+            print (u"策略：%s,委托止损单，30分钟下轨平仓"%self.className)
+        # 持有空头仓位
+        elif self.pos < 0:
+            orderList=self.cover(self.bollUp30+self.priceTick, abs(self.pos), True)
+            print (u"策略：%s,委托止损单，30分钟上轨平仓"%self.className)   
+            
         with open("datasig30.csv","ab+",) as csvfile: 
             writer = csv.writer(csvfile)
-            writer.writerow([bar.datetime,bar.open, bar.close, bar.high, bar.low,bar.openInterest,bar.volume,self.deal,self.bollDown15,self.bollUp15,self.dealopen])
+           # writer.writerow([bar.datetime,bar.open_price, bar.close_price, bar.high_price, bar.low_price,bar.open_interest,bar.volume,self.deal,self.bollDown15,self.bollUp15,self.dealopen])
         
-        print (u"策略:%s,30分钟刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.__dict__["name"],self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
-        print (u"30分钟收盘价",self.am30.closeArray[60:]) 
+        print (u"策略:%s,30分钟刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.className,self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
+        print (u"30分钟收盘价",self.am30.close_array[60:]) 
 
         # 发出状态更新事件
         self.put_event()      
@@ -506,13 +516,13 @@ class MyBollingStrategy(CtaTemplate):
 
     
         #判断当前日线布林线趋势状态
-        if bar.high > self.BeforebollupDay and bar.low > self.BeforebollMidDay:
+        if bar.high_price > self.BeforebollupDay and bar.low_price > self.BeforebollMidDay:
             self.DayTrendStatus='duotou'
-        elif bar.low < self.beforebolldownDay and bar.high < self.BeforebollMidDay:
+        elif bar.low_price < self.beforebolldownDay and bar.high_price < self.BeforebollMidDay:
             self.DayTrendStatus='kongtou'
-        elif bar.low < self.BeforebollMidDay and self.DayTrendStatus=='duotou':
+        elif bar.low_price < self.BeforebollMidDay and self.DayTrendStatus=='duotou':
             self.DayTrendStatus='panzhen'
-        elif bar.high > self.BeforebollMidDay and self.DayTrendStatus=='kongtou':
+        elif bar.high_price > self.BeforebollMidDay and self.DayTrendStatus=='kongtou':
             self.DayTrendStatus='panzhen'
         '''         
         #日线盘整，上下轨开仓  
@@ -536,11 +546,11 @@ class MyBollingStrategy(CtaTemplate):
         '''
         with open("datasig240.csv","ab+",) as csvfile: 
             writer = csv.writer(csvfile)
-            writer.writerow([bar.datetime,bar.open, bar.close, bar.high, bar.low,bar.openInterest,bar.volume,self.deal,self.bollDown15,self.bollUp15,self.dealopen])
+            #writer.writerow([bar.datetime,bar.open_price, bar.close_price, bar.high_price, bar.low_price,bar.open_interest,bar.volume,self.deal,self.bollDown15,self.bollUp15,self.dealopen])
         
-        print (u"策略:%s,日线刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.__dict__["name"],self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
-        print (u"日线开盘价",self.amDay.openArray[1:])
-        print (u"日线收盘价",self.amDay.closeArray[1:])  
+        print (u"策略:%s,日线刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.className,self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
+        print (u"日线开盘价",self.amDay.open_array[1:])
+        print (u"日线收盘价",self.amDay.close_array[1:])  
 
     
         # 发出状态更新事件
@@ -554,9 +564,9 @@ class MyBollingStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def on_trade(self, trade):
         #打印信息
-        print ("策略:%s,趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.__dict__["name"],self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
+        print ("策略:%s,趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.className,self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
         
-        print (u"策略：%s, 委托单成交"%self.__dict__["name"])
+        print (u"策略：%s, 委托单成交"%self.className)
         print (trade.direction)
         print (trade.offset)
         #print "15min:",self.FifteenMinTrendStatus
@@ -564,14 +574,14 @@ class MyBollingStrategy(CtaTemplate):
     
         #开仓成功后先取消掉还有的挂单，主要针对的是日线的双向挂单
         if self.pos!=0:        
-            self.cancelAll()
+            self.cancel_all()
         # 发出状态更新事件
         orderList=[]
         if self.pos > 0 :
-            orderList=self.sell(self.bollDown-self.priceTick, abs(self.pos), True)
+            orderList=self.sell(self.bollDown30-self.priceTick, abs(self.pos), True)
             print (u"委托止损单，5分钟下轨平仓")
         elif self.pos < 0 :
-            orderList=self.cover(self.bollUp+self.priceTick, abs(self.pos), True)
+            orderList=self.cover(self.bollUp30+self.priceTick, abs(self.pos), True)
             print (u"委托止损单，5分钟上轨平仓")
         
         #打印信息 
@@ -582,20 +592,22 @@ class MyBollingStrategy(CtaTemplate):
                 print (u"委托单失败")  
 
             
-        if trade.offset==OFFSET_OPEN:
-            if trade.direction==DIRECTION_LONG:
+        if trade.offset==Offset.OPEN:
+            if trade.direction==Direction.LONG:
                 self.dealopen=1
                 self.DayTrendStatus="duotou"
                 self.FifteenMinTrendStatus='duotou'
                 self.FiveMinTrendStatus='duotou'
+                self.ThirtyMinTrendStatus='duotou'
             else:
                 self.dealopen=-1
                 self.DayTrendStatus="kongtou"
                 self.FifteenMinTrendStatus='kongtou'
                 self.FiveMinTrendStatus='kongtou'
+                self.ThirtyMinTrendStatus='kongtou'
                 
-        if trade.offset==OFFSET_CLOSE:
-            if trade.direction==DIRECTION_LONG:
+        if trade.offset==Offset.CLOSE:
+            if trade.direction==Direction.LONG:
                 self.deal=1
             else:
                 self.deal=-1
