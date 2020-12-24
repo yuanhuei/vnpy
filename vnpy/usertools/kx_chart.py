@@ -56,6 +56,7 @@ from vnpy.usertools.chart_items import (
     MacdItem,
     TradeItem,
     OrderItem,
+    BollItem,
 )
 
 
@@ -80,6 +81,8 @@ class NewChartWidget(ChartWidget):
         self.add_item(CandleItem, "candle", "candle")
         self.add_item(LineItem, "line", "candle")
         self.add_item(SmaItem, "sma", "candle")
+        self.add_item(BollItem, "boll", "candle")
+        
         self.add_item(OrderItem, "order", "candle")
         self.add_item(TradeItem, "trade", "candle")
 
@@ -347,7 +350,7 @@ if __name__ == "__main__":
     
 
         
-    newbars=ConvertBar(bars,420)
+    newbars=ConvertBar(bars,60)
     
     print(f"一共读取{len(bars)}根K线")
 

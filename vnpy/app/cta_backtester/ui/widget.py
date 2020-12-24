@@ -14,6 +14,13 @@ from vnpy.event import Event, EventEngine
 from vnpy.chart import ChartWidget, CandleItem, VolumeItem
 from vnpy.trader.utility import load_json, save_json
 
+
+from vnpy.trader.constant import Exchange, Interval
+from vnpy.trader.object import BarData
+from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit
+
+from vnpy.usertools.chart_items import SmaItem,BollItem
+
 from ..engine import (
     APP_NAME,
     EVENT_BACKTESTER_LOG,
@@ -22,6 +29,51 @@ from ..engine import (
     OptimizationSetting
 )
 
+def ConvertBar(bars,show_minute):
+    newbars=[]
+    i=len(bars)//show_minute
+    if len(bars)>show_minute*i:
+        i=i+1
+    newbars=[x for x in range(i)]
+
+    
+    i=0
+    while i<((len(bars)//show_minute)+1):
+        if len(bars)==show_minute*i:
+            break
+        datetime=bars[show_minute*i].datetime
+        symbol=bars[show_minute*i].symbol
+        exchange=bars[show_minute*i].exchange
+        interval=bars[show_minute*i].interval
+        volume=bars[show_minute*i].volume
+        open_interest=bars[show_minute*i].open_interest
+        open_price=bars[show_minute*i].open_price
+        close_price=bars[show_minute*i].close_price
+        high_price=bars[show_minute*i].high_price
+        low_price=bars[show_minute*i].low_price
+        j=1
+        while j <show_minute:
+            if (show_minute*i+j)==len(bars):
+                break
+            high_price=max(high_price,bars[show_minute*i+j].high_price)
+            low_price=min(low_price,bars[show_minute*i+j].low_price)
+            close_price=bars[show_minute*i+j].close_price
+            j=j+1
+        newbars[i] = BarData(
+            symbol=symbol,
+            exchange=Exchange(exchange),
+            datetime=datetime,
+            interval=Interval(interval),
+            volume=volume,
+            open_price=open_price,
+            high_price=high_price,
+            open_interest=open_interest,
+            low_price=low_price,
+            close_price=close_price,
+            gateway_name="DB"
+        )        
+        i=i+1
+    return newbars
 
 class BacktesterManager(QtWidgets.QWidget):
     """"""
@@ -475,15 +527,23 @@ class BacktesterManager(QtWidgets.QWidget):
         self.daily_dialog.exec_()
 
     def show_candle_chart(self):
-        """"""
+        """"""      
         if not self.candle_dialog.is_updated():
+            show_min=1
+            i, okPressed = QInputDialog.getInt(self, "k线显示周期","请输入(分钟数):", 1, 0, 100, 1)
+            if okPressed:
+                show_min=i            
             history = self.backtester_engine.get_history_data()
+            
+            for ix, bar in enumerate(history):
+                self.candle_dialog.dt_ix_map_min[bar.datetime] = ix            
+                
             #from vnpy.usertools.kx_chart import ConvertBar
-            #newhistory=ConvertBar(history,60)
-            self.candle_dialog.update_history(history)
-
+            newhistory=ConvertBar(history,show_min)
+            self.candle_dialog.update_history(newhistory)
+            
             trades = self.backtester_engine.get_all_trades()
-            self.candle_dialog.update_trades(trades)
+            self.candle_dialog.update_trades(trades,show_min)
 
         self.candle_dialog.exec_()
 
@@ -1140,6 +1200,7 @@ class CandleChartDialog(QtWidgets.QDialog):
         super().__init__()
 
         self.dt_ix_map = {}
+        self.dt_ix_map_min = {}
         self.updated = False
         self.init_ui()
 
@@ -1153,6 +1214,10 @@ class CandleChartDialog(QtWidgets.QDialog):
         self.chart.add_plot("candle", hide_x_axis=True)
         self.chart.add_plot("volume", maximum_height=200)
         self.chart.add_item(CandleItem, "candle", "candle")
+        
+        #self.chart.add_item(SmaItem, "sma", "candle")
+        self.chart.add_item(BollItem, "boll", "candle")
+        
         self.chart.add_item(VolumeItem, "volume", "volume")
         self.chart.add_cursor()
 
@@ -1173,13 +1238,15 @@ class CandleChartDialog(QtWidgets.QDialog):
 
         for ix, bar in enumerate(history):
             self.dt_ix_map[bar.datetime] = ix
-
-    def update_trades(self, trades: list):
+ 
+            
+    def update_trades(self, trades: list,show_min:int):
         """"""
         trade_data = []
 
         for trade in trades:
-            ix = self.dt_ix_map[trade.datetime]
+            ix = self.dt_ix_map_min[trade.datetime]
+            ix=ix//show_min
 
             scatter = {
                 "pos": (ix, trade.price),
@@ -1211,8 +1278,13 @@ class CandleChartDialog(QtWidgets.QDialog):
         self.chart.clear_all()
 
         self.dt_ix_map.clear()
+        self.dt_ix_map_min.clear()
         self.trade_scatter.clear()
 
     def is_updated(self):
         """"""
         return self.updated
+    
+    def closeEvent(self, event):
+        self.clear_data()
+        event.accept()

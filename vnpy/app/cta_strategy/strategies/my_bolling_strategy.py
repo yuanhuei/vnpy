@@ -122,7 +122,7 @@ class MyBollingStrategy(CtaTemplate):
     orderList = []                      # 保存委托代码的列表
 
     # 参数列表，保存了参数的名称
-    paramList = ['name',
+    parameters = ['name',
                  'className',
                  'author',
                  'vtSymbol',
@@ -135,7 +135,7 @@ class MyBollingStrategy(CtaTemplate):
                  'DayTrendStatus']    
 
     # 变量列表，保存了变量的名称
-    varList = ['inited',
+    variables = ['inited',
                'trading',
                'pos',
                'bollUp',
