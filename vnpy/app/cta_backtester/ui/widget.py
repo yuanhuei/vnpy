@@ -530,9 +530,11 @@ class BacktesterManager(QtWidgets.QWidget):
         """"""      
         if not self.candle_dialog.is_updated():
             show_min=1
-            i, okPressed = QInputDialog.getInt(self, "k线显示周期","请输入(分钟数):", 1, 0, 100, 1)
+            i, okPressed = QInputDialog.getInt(self, "k线显示周期","请输入(分钟数):", 1, 0, 1000, 1)
             if okPressed:
-                show_min=i            
+                show_min=i 
+            else:
+                return
             history = self.backtester_engine.get_history_data()
             
             for ix, bar in enumerate(history):
