@@ -118,6 +118,7 @@ class OrderData(BaseData):
     traded: float = 0
     status: Status = Status.SUBMITTING
     datetime: datetime = None
+    baoben=False
 
     def __post_init__(self):
         """"""
@@ -160,6 +161,7 @@ class TradeData(BaseData):
     price: float = 0
     volume: float = 0
     datetime: datetime = None
+    baoben=False
 
     def __post_init__(self):
         """"""
