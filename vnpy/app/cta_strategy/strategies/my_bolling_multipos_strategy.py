@@ -180,7 +180,8 @@ class MyBollingMultiPosStrategy(CtaTemplate):
         self.bm30 = BarGenerator(self.on_bar, 30, self.on_30Min_bar)
         self.am30 = ArrayManager(80)                
  
-        self.bmDay = BarGenerator(self.on_bar, 9, self.onDayBar,Interval.HOUR)
+        #self.bmDay = BarGenerator(self.on_bar, 9, self.onDayBar,Interval.HOUR)
+        self.bmDay = BarGenerator(self.on_bar, 1, self.onDayBar,Interval.DAILY)
         self.amDay = ArrayManager(30)       
         
         head=["datetime","BollStatus","open","close","high","low","openInterest","volume","deal","pDown","pUp","dealOpen"]
@@ -189,9 +190,11 @@ class MyBollingMultiPosStrategy(CtaTemplate):
         write_csv_file(current_path+"\\datasig15.csv",head,None,"w")
         write_csv_file(current_path+"\\datasig30.csv",head,None,"w")
         write_csv_file(current_path+"\\datasigDay.csv",head,None,"w")
+        
         head=["datetime","orderid","tradeid","direction","offset","price","volume"]
         write_csv_file("datasigTrade.csv",head,None,"w")
-        
+        head=["datetime","orderid","tradeid","direction","offset","price","volume","baoben"]
+        write_csv_file("datasigPos.csv",head,None,"w")        
         
         print("self.cta_engine.capital %d",self.cta_engine.capital)
   
@@ -459,7 +462,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
     def on_30Min_bar(self, bar: BarData):
         """30分钟K线推送"""
         t1=str(bar.datetime)
-        t2=str(datetime(2016,2,3,21,0,0))
+        t2=str(datetime(2011,11,2,10,00,0))
         if t2 in t1:
             i=0
             
@@ -495,13 +498,20 @@ class MyBollingMultiPosStrategy(CtaTemplate):
         self.shortEntry=self.bollDown30-self.priceTick      
         self.shortExit=self.bollUp30+self.priceTick
         zhishun=self.bollUp30-self.bollDown30
-        pos=self.caculate_pos(zhishun)    
-        #pos=self.fixedSize
+        volume=self.caculate_pos(zhishun)    
+        #volume=self.fixedSize
+        #pos=self.posdata[-1]
+        
+        if (self.pos==0 and len(self.posdata)>0) or (not self.pos==0 and len(self.posdata)==0):
+            print(u"仓位self.pos和仓位列表self.posdata不匹配")
+            import sys
+            sys.exit(1)
+        
         if self.pos==0:  #无仓位
             if self.ThirtyMinTrendStatus=='panzhen' and self.DayTrendStatus=='duotou':
-                self.buy(self.longEntry, pos, True)            
+                self.buy(self.longEntry, volume, True)            
             elif self.ThirtyMinTrendStatus=='panzhen' and self.DayTrendStatus=='kongtou':  
-                self.short(self.shortEntry,pos,True)    
+                self.short(self.shortEntry,volume,True)    
         else:            #有仓位
             #最后一个单子为开仓单，判断是否保本了
             trade=self.tradedata[-1]
@@ -513,17 +523,17 @@ class MyBollingMultiPosStrategy(CtaTemplate):
             
             if trade.offset==Offset.CLOSE or self.lastTrade_baoben==True:    #最后一个交易为平仓单，发送开仓单在布林线上下轨
                 if self.ThirtyMinTrendStatus=='panzhen' and self.DayTrendStatus=='duotou':
-                    self.buy(self.longEntry, pos, True)            
+                    self.buy(self.longEntry, volume, True)            
                 elif self.ThirtyMinTrendStatus=='panzhen' and self.DayTrendStatus=='kongtou':                     
-                    self.short(self.shortEntry,pos,True)           
+                    self.short(self.shortEntry,volume,True)           
             #需要在布林线上下轨止损的单子，重新发出止损单子
             # 最后一笔交易为多头仓位，没有保本，在下轨止损
             elif trade.offset==Offset.OPEN and (trade.direction==Direction.LONG and self.posdata[-1].baoben==False): 
-                orderList=self.sell(self.longExit, trade.volume, True)
+                orderList=self.sell(max(self.longExit,self.bollMidDay), trade.volume, True)
                 #print (u"策略：%s,委托止损单，30分钟下轨平仓"%self.className)
             # 最后一笔交易为空头仓位，没有保本，在上轨止损
             elif trade.offset==Offset.OPEN and (trade.direction==Direction.SHORT and self.posdata[-1].baoben==False): 
-                orderList=self.cover(self.shortExit, trade.volume, True)
+                orderList=self.cover(min(self.bollMidDay,self.shortExit), trade.volume, True)
                 #print (u"策略：%s,委托止损单，30分钟上轨平仓"%self.className)   
             #需要在保本位置设置止损的交易单，重新发出止损单子
             #if self.lastTrade_baoben==True:
@@ -555,7 +565,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
             '''
         current_path =os.getcwd()# os.path.abspath(__file__)
         bardata=[bar.datetime,self.ThirtyMinTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,bar.open_interest,bar.volume,self.pos,self.bollDown30,self.bollUp30,self.dealopen]
-        #write_csv_file(current_path+"\\datasig30.csv",None,bardata,"a+")
+        write_csv_file(current_path+"\\datasig30.csv",None,bardata,"a+")
         #print(u"时间：",bar.datetime)
         #print (u"策略:%s,30分钟刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.className,self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
         #print (u"30分钟收盘价",self.am30.close_array[60:]) 
@@ -624,8 +634,8 @@ class MyBollingMultiPosStrategy(CtaTemplate):
                 print (u"策略：%s,委托单失败"%self.__dict__["name"] )             
                 
         '''
-        #bardata=[bar.datetime,self.DayTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,bar.open_interest,bar.volume,self.pos,self.bollDownDay,self.bollUpDay,self.dealopen]
-        #write_csv_file("datasigDay.csv",None,bardata,"a+")        
+        bardata=[bar.datetime,self.DayTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,bar.open_interest,bar.volume,self.pos,self.bollDownDay,self.bollUpDay,self.dealopen]
+        write_csv_file("datasigDay.csv",None,bardata,"a+")        
         print(u"日线刷新---------------")
         print(u"时间(日线刷新)：",bar.datetime)
         print (u"策略:%s,日线刷新，趋势状态,日线趋势%s,15分钟趋势%s,30分钟趋势%s,5分钟趋势%s"%(self.className,self.DayTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.FiveMinTrendStatus))
@@ -654,7 +664,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
         print (trade.offset)
         #print "15min:",self.FifteenMinTrendStatus
         #print "5min:",self.FiveMinTrendStatus
-        
+        current_path =os.getcwd()# os.path.abspath(__file__)
         #head=["datetime","orderid","tradeid","direction","offset","price","volume"]
         #所有交易单保存下来
         self.tradedata.append(trade)
@@ -663,10 +673,17 @@ class MyBollingMultiPosStrategy(CtaTemplate):
             self.posdata.append(trade)
             self.posdata[-1].baoben==False
             self.lastTrade_baoben=False
+           
         if trade.offset==Offset.CLOSE:
             self.posdata.pop()
-            if len(self.posdata)>1: #这一单平仓后，仓位list中还有仓位，说明上一个仓位是已经保本的仓位i
+            if len(self.posdata)>=1: #这一单平仓后，仓位list中还有仓位，说明上一个仓位是已经保本的仓位i
                 self.lastTrade_baoben=True
+            else:
+                #清空
+                head=["datetime","orderid","tradeid","direction","offset","price","volume","baoben"]
+                write_csv_file(current_path+"\\datasigPos.csv",head,None,"w")
+                
+               
         '''     
         #成交单是保本的平仓单需要,判断标准一，这次和上次都是平仓单
         if self.tradedata[-1].offset==Offset.CLOSE and self.tradedata[-2].offset==offset.CLOSE:
@@ -677,10 +694,21 @@ class MyBollingMultiPosStrategy(CtaTemplate):
         '''        
         
         #保存到文件
-        current_path =os.getcwd()# os.path.abspath(__file__)
+        
         tradedata=[trade.datetime,trade.orderid,trade.tradeid,trade.direction,trade.offset,trade.price,trade.volume]
-        write_csv_file(current_path+"\\datasigTrade.csv",None,tradedata,"a+")        
-        #开仓成功后先取消掉还有的挂单，主要针对的是日线的双向挂单
+        write_csv_file(current_path+"\\datasigTrade.csv",None,tradedata,"a+")  
+        #写入仓位保存文件
+    
+        head=["datetime","orderid","tradeid","direction","offset","price","volume","baoben"]
+        #    write_csv_file(current_path+"datasigPos.csv",head,None,"w")        
+        i=0
+        while i <len(self.posdata):
+            posdata=[self.posdata[i].datetime,self.posdata[i].orderid,self.posdata[i].tradeid,self.posdata[i].direction,self.posdata[i].offset,self.posdata[i].price,self.posdata[i].volume,self.posdata[i].baoben]
+            if i==0:
+                write_csv_file(current_path+"\\datasigPos.csv",head,None,"w")           #开仓成功后先取消掉还有的挂单，主要针对的是日线的双向挂单
+         
+            write_csv_file(current_path+"\\datasigPos.csv",None,posdata,"a+") 
+            i=i+1
         #if self.pos!=0:        
         #    self.cancel_all()
         # 发出状态更新事件

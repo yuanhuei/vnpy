@@ -7,7 +7,8 @@ def write_csv_file(path,head,row,mode='r'):
         with open(path,mode,newline='') as csv_file:  
             writer = csv.writer(csv_file, dialect='excel')  
   
-            if head is not None:  
+            if head is not None: 
+                csv_file.truncate()
                 writer.writerow(head)  
   
             if row is not None:

@@ -13,8 +13,8 @@ engine = BacktestingEngine()
 engine.set_parameters(
     vt_symbol="rb888.SHFE",
     interval="1m",
-    start=datetime(2016, 5, 1),
-    end=datetime(2019, 6, 1),
+    start=datetime(2010, 4, 16),
+    end=datetime(2013, 5, 16),
     rate=0.3/10000,
     slippage=1,
     size=10,

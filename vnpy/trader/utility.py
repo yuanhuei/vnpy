@@ -295,6 +295,13 @@ class BarGenerator:
                         finished = True
                         self.interval_count = 0
 
+        elif self.interval == Interval.DAILY:
+            ''' 如果当天的最后一个收盘时间事14.59，进行合成，生成日线bar'''
+            tem=str(bar.datetime)[11:-6]
+            if self.last_bar and str(bar.datetime)[11:-6]=='14:59:00':
+               
+                finished = True
+                self.interval_count = 0
         if finished:
             self.on_window_bar(self.window_bar)
             self.window_bar = None
