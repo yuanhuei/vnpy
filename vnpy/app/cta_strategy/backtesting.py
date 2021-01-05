@@ -524,11 +524,15 @@ class BacktestingEngine:
         # Check DataFrame input exterior
         if df is None:
             df = self.daily_df
-
+   
         # Check for init DataFrame
         if df is None:
             return
-
+        #df.to_csv("df", encoding='utf-8', index=False)
+        df["balance"].to_csv("df", index=True)
+        df1=df["balance"]/1000000
+        df1.to_csv("df_balance", index=True)
+        
         plt.figure(figsize=(10, 16))
 
         balance_plot = plt.subplot(4, 1, 1)

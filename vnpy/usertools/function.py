@@ -3,6 +3,9 @@ import csv
 
 
 def write_csv_file(path,head,row,mode='r'):  
+    WriterLog=True
+    if WriterLog==False:
+        return
     try:  
         with open(path,mode,newline='') as csv_file:  
             writer = csv.writer(csv_file, dialect='excel')  

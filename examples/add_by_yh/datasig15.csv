@@ -1,1 +1,1 @@
-datetime,BollStatus,open,close,high,low,openInterest,volume,deal,pDown,pUp,dealOpen
+datetime,BollStatus,open,close,high,low,pos,pDown,pMiddle,pUp,dealOpen
