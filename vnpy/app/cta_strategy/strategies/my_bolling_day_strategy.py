@@ -180,8 +180,8 @@ class MyBollingDayStrategy(CtaTemplate):
         self.bm30 = BarGenerator(self.on_bar, 30, self.on_30Min_bar)
         self.am30 = ArrayManager(80)                
  
-        #self.bmDay = BarGenerator(self.on_bar, 9, self.onDayBar,Interval.HOUR)
-        self.bmDay = BarGenerator(self.on_bar, 1, self.onDayBar,Interval.DAILY)
+        self.bmDay = BarGenerator(self.on_bar, 6, self.onDayBar,Interval.HOUR)
+        #self.bmDay = BarGenerator(self.on_bar, 1, self.onDayBar,Interval.DAILY)
         self.amDay = ArrayManager(30)       
         
         head=["datetime","BollStatus","open","close","high","low","pos","pDown","pMiddle","pUp","dealOpen"]
@@ -600,7 +600,15 @@ class MyBollingDayStrategy(CtaTemplate):
         self.shortExit=self.bollMidDay+self.priceTick
           
         #需要在日线中轨止损的单子，需要在新的日线中轨处发出止损单
-        if len(self.tradedata_day)>0:
+        #if len(self.tradedata_day)>0:
+        if self.pos!=0:
+            if self.pos>0:
+                orderList=self.sell(self.longExit, self.pos, True)
+                print (u"策略：%s,委托止损单，日线中轨平仓"%self.className)  
+            else:
+                orderList=self.cover(self.shortExit, abs(self.pos), True)
+                print (u"策略：%s,委托止损单，日线中轨平仓"%self.className)  
+            '''
             i=0
             volume=0
             while i <len(self.tradedata_day):
@@ -613,11 +621,11 @@ class MyBollingDayStrategy(CtaTemplate):
                     orderList=self.cover(self.shortExit, volume, True)
                     print (u"策略：%s,委托止损单，日线中轨平仓"%self.className)              
                 i=i+1  
-        
+            '''
         zhishun=(self.bollUpDay-self.bollDownDay)/2
         volume=self.caculate_pos(zhishun)            
         #日线盘整，上下轨开仓  
-        if self.DayTrendStatus=="panzhen" and len(self.tradedata_day)==0:
+        if self.DayTrendStatus=="panzhen" and self.pos==0:#len(self.tradedata_day)==0:
             self.cancel_all()
             orderList=[]
             orderList=self.buy(self.bollUpDay+self.priceTick, volume, True)

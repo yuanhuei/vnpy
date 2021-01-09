@@ -118,8 +118,10 @@ class MyBolling15MinStrategy(CtaTemplate):
     intraTradeHigh = 0                  # 持仓期内的最高点  
     longEntry = 0                       #多头开仓位置
     longExit = 0                        #多头平仓位置 
+    longExit_init=0
     shortEntry=0                        #空头开仓位置
     shortExit=0                         #空头平仓位置
+    shortExit_init=0
     #上一个交易单子保本否
     lastTrade_baoben=False
     
@@ -134,7 +136,7 @@ class MyBolling15MinStrategy(CtaTemplate):
     tradedata_baoben=[] #所有的已经过了保本线的交易单
     tradedata_day=[] #所有的需要在日线布林中轨止损的交易单
     
-    zhishunpercent=0.005   #每笔止损百分比
+    zhishunpercent=0.003   #每笔止损百分比
 
     # 参数列表，保存了参数的名称
     parameters = [
@@ -475,7 +477,7 @@ class MyBolling15MinStrategy(CtaTemplate):
                     self.lastTrade_baoben=True
                     self.posdata[-1].baoben=True
                 
-            #最后一个交易为平仓单或者是开仓单但是已经保本了，发送开仓单在布林线上下轨
+            #最后一个交易为平仓单，发送开仓单在布林线上下轨
             if trade.offset==Offset.CLOSE:# or self.lastTrade_baoben==True:    
                 if self.FifteenMinTrendStatus!='doutou' and (self.ThirtyMinTrendStatus=='duotou' and self.DayTrendStatus=='duotou'):
                     self.buy(self.longEntry, volume, True)            
@@ -486,11 +488,11 @@ class MyBolling15MinStrategy(CtaTemplate):
             #需要在布林线上下轨止损的单子，重新发出止损单子
             # 最后一笔交易为多头仓位，没有保本，在下轨止损
             elif trade.offset==Offset.OPEN and (trade.direction==Direction.LONG and self.posdata[-1].baoben==False): 
-                orderList=self.sell(max(self.longExit,self.bollMidDay), trade.volume, True)
+                orderList=self.sell(max(self.longExit,self.longExit_init), trade.volume, True)
                 #print (u"策略：%s,委托止损单，30分钟下轨平仓"%self.className)
             # 最后一笔交易为空头仓位，没有保本，在上轨止损
             elif trade.offset==Offset.OPEN and (trade.direction==Direction.SHORT and self.posdata[-1].baoben==False): 
-                orderList=self.cover(min(self.bollMidDay,self.shortExit), trade.volume, True)
+                orderList=self.cover(min(self.shortExit_init,self.shortExit), trade.volume, True)
                 #print (u"策略：%s,委托止损单，30分钟上轨平仓"%self.className)   
            
             #需要在保本位置设置止损的交易单，重新发出止损单子
@@ -621,14 +623,14 @@ class MyBolling15MinStrategy(CtaTemplate):
                         #print (u"策略：%s,委托止损单，保本价格平仓"%self.className)
                 i=i+1    
             #需要在日线中轨止损的单子，需要在新的日线中轨处发出止损单
-
+        '''
         current_path =os.getcwd()# os.path.abspath(__file__)
-        bardata=[bar.datetime,self.FifteenMinTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,self.pos,int(self.bollDown15),int(self.bollMid15),int(self.bollUp15),self.dealopen]lUp30,self.dealopen]
+        bardata=[bar.datetime,self.ThirtyMinTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,self.pos,int(self.bollDown30),int(self.bollMid30),int(self.bollUp30),self.dealopen]
         write_csv_file(current_path+"\\datasig30.csv",None,bardata,"a+")
         #print(u"时间：",bar.datetime)
         #print (u"策略:%s,30分钟刷新，趋势状态,5分钟趋势%s,15分钟趋势%s,30分钟趋势%s,日线趋势%s"%(self.className,self.FiveMinTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.DayTrendStatus))
         #print (u"30分钟收盘价",self.am30.close_array[60:]) 
-        '''
+        
         # 发出状态更新事件
         self.put_event()      
         
@@ -699,7 +701,7 @@ class MyBolling15MinStrategy(CtaTemplate):
                 print (u"策略：%s,委托单失败"%self.className )             
         '''       
         
-        bardata=[bar.datetime,self.DayTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,self.pos,int(self.bollDown15),int(self.bollMid15),int(self.bollUp15),self.dealopen]
+        bardata=[bar.datetime,self.DayTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,self.pos,int(self.bollDownDay),int(self.bollMidDay),int(self.bollUpDay),self.dealopen]
         write_csv_file("datasigDay.csv",None,bardata,"a+")        
         print(u"日线刷新---------------")
         print(u"时间(日线刷新)：",bar.datetime)
@@ -738,6 +740,8 @@ class MyBolling15MinStrategy(CtaTemplate):
             self.posdata.append(trade)
             self.posdata[-1].baoben==False
             self.lastTrade_baoben=False
+            self.longExit_init=self.bollDown15-self.priceTick
+            self.shortExit_init=self.bollUp15+self.priceTick
            
         if trade.offset==Offset.CLOSE:
             self.posdata.pop()

@@ -20,7 +20,7 @@ engine.set_parameters(
     vt_symbol="rb888.SHFE",
     interval="1m",
     start=datetime(2010, 4, 16),
-    end=datetime(2016, 4, 16),
+    end=datetime(2018, 4, 16),
     rate=0.3/10000,
     slippage=1,
     size=10,
