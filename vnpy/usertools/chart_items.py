@@ -649,7 +649,7 @@ class BollItem(CandleItem):
 
         self.blue_pen: QtGui.QPen = pg.mkPen(color='y', width=1)
 
-        self.boll_window = 52
+        self.boll_window = 26
         self.boll_data = {}
 
     def get_boll_value(self, ix: int):

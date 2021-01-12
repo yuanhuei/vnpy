@@ -27,7 +27,7 @@ engine.set_parameters(
     pricetick=0.2,
     capital=1_000_000,
 )
-engine.add_strategy(MyBolling15MinStrategy, {})
+engine.add_strategy(MyBollingDayStrategy, {})
 
 #%%
 engine.load_data()

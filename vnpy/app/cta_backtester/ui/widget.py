@@ -559,7 +559,8 @@ class BacktesterManager(QtWidgets.QWidget):
             history = self.backtester_engine.get_history_data()
             
             for ix, bar in enumerate(history):
-                self.candle_dialog.dt_ix_map_min[bar.datetime] = ix            
+                self.candle_dialog.dt_ix_map_min[bar.datetime] = ix      
+                self.candle_dialog.ix_bar_map_min[ix] = bar
                 
             #from vnpy.usertools.kx_chart import ConvertBar
             newhistory=ConvertBar(history,show_min)
@@ -1240,10 +1241,9 @@ class CandleChartDialog(QtWidgets.QDialog):
         super().__init__()
 
 
-        self.dt_ix_map = {}
+        
         self.dt_ix_map_min = {}
-
-        self.updated = False
+        self.ix_bar_map_min = {}
 
         self.dt_ix_map = {}
         self.ix_bar_map = {}
@@ -1335,6 +1335,7 @@ class CandleChartDialog(QtWidgets.QDialog):
         for ix, bar in enumerate(history):
             self.ix_bar_map[ix] = bar
             self.dt_ix_map[bar.datetime] = ix
+            
 
 
             if not self.high_price:
@@ -1346,7 +1347,7 @@ class CandleChartDialog(QtWidgets.QDialog):
 
         self.price_range = self.high_price - self.low_price
 
-    def update_trades(self, trades: list):
+    def update_trades(self, trades: list, show_min:int):#增加一个参数，K线显示的周期，X分钟
         """"""
         trade_pairs = generate_trade_pairs(trades)
 
@@ -1363,8 +1364,10 @@ class CandleChartDialog(QtWidgets.QDialog):
             ix=ix//show_min
             
         for d in trade_pairs:
-            open_ix = self.dt_ix_map[d["open_dt"]]
-            close_ix = self.dt_ix_map[d["close_dt"]]
+            open_ix = self.dt_ix_map_min[d["open_dt"]]
+            open_ix=open_ix//show_min
+            close_ix = self.dt_ix_map_min[d["close_dt"]]
+            close_ix=close_ix//show_min
             open_price = d["open_price"]
             close_price = d["close_price"]
 
@@ -1460,11 +1463,13 @@ class CandleChartDialog(QtWidgets.QDialog):
         self.chart.clear_all()
 
         self.dt_ix_map.clear()
+        self.ix_bar_map.clear()
         #有修改
         self.dt_ix_map_min.clear()
-        self.trade_scatter.clear()
+        self.ix_bar_map_min.clear()
+        #self.trade_scatter.clear()
 
-        self.ix_bar_map.clear()
+                
 
 
     def is_updated(self):
