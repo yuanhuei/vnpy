@@ -130,11 +130,7 @@ class MyBolling15MinStrategy(CtaTemplate):
     
     
     orderList = []                      # 保存委托代码的列表
-    tradedata=[] 
-    posdata=[]         #仓位信息，每次开仓成功后把trade信息加入List,平仓后删除
-    tradedata_boll=[] #所有的需要在布林线止损的交易单
-    tradedata_baoben=[] #所有的已经过了保本线的交易单
-    tradedata_day=[] #所有的需要在日线布林中轨止损的交易单
+
     
     zhishunpercent=0.003   #每笔止损百分比
 
@@ -175,6 +171,12 @@ class MyBolling15MinStrategy(CtaTemplate):
         """Constructor"""
         #super(MyBollingerBotStrategy, self).__init__(ctaEngine, setting)
         super().__init__(ctaEngine, strategy_name, vt_symbol, setting)
+        
+        self.tradedata=[] 
+        self.posdata=[]         #仓位信息，每次开仓成功后把trade信息加入List,平仓后删除
+        self.tradedata_boll=[] #所有的需要在布林线止损的交易单
+        self.tradedata_baoben=[] #所有的已经过了保本线的交易单
+        self.tradedata_day=[] #所有的需要在日线布林中轨止损的交易单      
         
         self.bm5 = BarGenerator(self.on_bar, 5, self.on_5Min_bar)
         self.am5 = ArrayManager(80)

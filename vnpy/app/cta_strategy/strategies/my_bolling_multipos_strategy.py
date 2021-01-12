@@ -134,7 +134,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
     tradedata_baoben=[] #所有的已经过了保本线的交易单
     tradedata_day=[] #所有的需要在日线布林中轨止损的交易单
     
-    zhishunpercent=0.005   #每笔止损百分比
+    zhishunpercent=0.003   #每笔止损百分比
 
     # 参数列表，保存了参数的名称
     parameters = [

@@ -180,8 +180,8 @@ class MyBollingDayStrategy(CtaTemplate):
         self.bm30 = BarGenerator(self.on_bar, 30, self.on_30Min_bar)
         self.am30 = ArrayManager(80)                
  
-        self.bmDay = BarGenerator(self.on_bar, 6, self.onDayBar,Interval.HOUR)
-        #self.bmDay = BarGenerator(self.on_bar, 1, self.onDayBar,Interval.DAILY)
+        #self.bmDay = BarGenerator(self.on_bar, 6, self.onDayBar,Interval.HOUR)
+        self.bmDay = BarGenerator(self.on_bar, 1, self.onDayBar,Interval.DAILY)
         self.amDay = ArrayManager(30)       
         
         head=["datetime","BollStatus","open","close","high","low","pos","pDown","pMiddle","pUp","dealOpen"]
