@@ -10,6 +10,10 @@ from types import TracebackType
 import requests
 
 
+# Use SSL from Python stdlib instead of OpenSSL to avoid [10054 WSAECONNRESET] error
+requests.packages.urllib3.contrib.pyopenssl.extract_from_urllib3()
+
+
 CALLBACK_TYPE = Callable[[dict, "Request"], Any]
 ON_FAILED_TYPE = Callable[[int, "Request"], Any]
 ON_ERROR_TYPE = Callable[[Type, Exception, TracebackType, "Request"], Any]
@@ -114,7 +118,7 @@ class RestClient(object):
         self.url_base = url_base
 
         if proxy_host and proxy_port:
-            proxy = f"{proxy_host}:{proxy_port}"
+            proxy = f"http://{proxy_host}:{proxy_port}"
             self.proxies = {"http": proxy, "https": proxy}
 
     def start(self, n: int = 3) -> None:

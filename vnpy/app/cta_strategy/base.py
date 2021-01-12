@@ -52,6 +52,7 @@ EVENT_CTA_ORDER = "eCtaOrder"                   # hxxjava add
 EVENT_CTA_TRADE = "eCtaTrade"                   # hxxjava add
 
 INTERVAL_DELTA_MAP = {
+    Interval.TICK: timedelta(milliseconds=1),
     Interval.MINUTE: timedelta(minutes=1),
     Interval.HOUR: timedelta(hours=1),
     Interval.DAILY: timedelta(days=1),
