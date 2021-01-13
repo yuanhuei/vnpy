@@ -39,8 +39,8 @@ engine.show_chart()
 '''
 setting = OptimizationSetting()
 setting.set_target("sharpe_ratio")
-setting.add_parameter("bollWindow15min", 20, 30, 1)
+setting.add_parameter("bollWindow15min", 25, 30, 1)
 #setting.add_parameter("atr_ma_length", 10, 30, 1)
 
-engine.run_optimization(setting)
+engine.run_ga_optimization(setting)
 '''
