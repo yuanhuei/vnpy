@@ -295,6 +295,9 @@ class BarGenerator:
             # x-minute bar
             if not (bar.datetime.minute + 1) % self.window:
                 finished = True
+            #商品期货的30分钟周期合成需要特别处理一下10：15到10：30的停牌    
+            elif (self.last_bar and str(bar.datetime)[-14:-6]=='10:14:00') and self.window==30: 
+                finished = True
         elif self.interval == Interval.HOUR:
             if self.last_bar:
                 new_hour = bar.datetime.hour != self.last_bar.datetime.hour

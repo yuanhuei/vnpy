@@ -773,6 +773,7 @@ class BacktestingEngine:
             target_value = ga_optimize(parameter_values)[0]
             results.append((setting, target_value, {}))
 
+        print(results)
         return results
 
     def update_daily_close(self, price: float):

@@ -648,6 +648,7 @@ class BollItem(CandleItem):
         super().__init__(manager)
 
         self.blue_pen: QtGui.QPen = pg.mkPen(color='y', width=1)
+        self.white_pen: QtGui.QPen = pg.mkPen(color='w', width=1)
 
         self.boll_window = 26
         self.boll_data = {}
@@ -724,13 +725,16 @@ class BollItem(CandleItem):
             end_point = QtCore.QPointF(ix, boll_value["upper"])
             painter.drawLine(start_point, end_point)
             
-            start_point = QtCore.QPointF(ix-1, last_boll_value["middle"])
-            end_point = QtCore.QPointF(ix, boll_value["middle"])
-            painter.drawLine(start_point, end_point)
-            
             start_point = QtCore.QPointF(ix-1, last_boll_value["lower"])
             end_point = QtCore.QPointF(ix, boll_value["lower"])
             painter.drawLine(start_point, end_point)
+
+            start_point = QtCore.QPointF(ix-1, last_boll_value["middle"])
+            end_point = QtCore.QPointF(ix, boll_value["middle"])
+            painter.setPen(self.white_pen)
+            painter.drawLine(start_point, end_point)
+            
+
         
         # Finish
         painter.end()

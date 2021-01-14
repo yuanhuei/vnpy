@@ -79,17 +79,17 @@ class NewChartWidget(ChartWidget):
         # 创建K线主图及多个绘图部件
         self.add_plot("candle", hide_x_axis=True)
         self.add_item(CandleItem, "candle", "candle")
-        self.add_item(LineItem, "line", "candle")
-        self.add_item(SmaItem, "sma", "candle")
+        #self.add_item(LineItem, "line", "candle")
+        #self.add_item(SmaItem, "sma", "candle")
         self.add_item(BollItem, "boll", "candle")
         
         self.add_item(OrderItem, "order", "candle")
         self.add_item(TradeItem, "trade", "candle")
-
+        
         # 创建成交量附图及绘图部件
         self.add_plot("volume", maximum_height=150)
         self.add_item(VolumeItem, "volume", "volume")
-
+        '''
         # 创建RSI附图及绘图部件
         self.add_plot("rsi", maximum_height=150)
         self.add_item(RsiItem, "rsi", "rsi")
@@ -97,7 +97,7 @@ class NewChartWidget(ChartWidget):
         # 创建MACD附图及绘图部件
         self.add_plot("macd", maximum_height=150)
         self.add_item(MacdItem, "macd", "macd")
-
+        '''
         # 创建最新价格线、光标
         self.add_last_price_line()
         self.add_cursor()
@@ -292,7 +292,8 @@ if __name__ == "__main__":
         orders=[]
         return orders
 
-        ''''orders = [
+    '''
+        orders = [
             OrderData(gateway_name='CTP', symbol='ag2012', exchange=Exchange.SHFE, orderid='3_753490688_1', type=OrderType.LIMIT, direction=Direction.LONG, offset=Offset.OPEN, price=6494.0, volume=3.0, traded=0, status=Status.SUBMITTING, datetime=None, reference='TTS-ag2012'),
             OrderData(gateway_name='CTP', symbol='ag2012', exchange=Exchange.SHFE, orderid='3_753490688_1', type=OrderType.LIMIT, direction=Direction.LONG, offset=Offset.OPEN, price=6494.0, volume=3, traded=0, status=Status.SUBMITTING, datetime=CHINA_TZ.localize(datetime(2020, 8, 13, 21, 0, 1)), reference=''),
             OrderData(gateway_name='CTP', symbol='ag2012', exchange=Exchange.SHFE, orderid='3_753490688_1', type=OrderType.LIMIT, direction=Direction.LONG, offset=Offset.OPEN, price=6494.0, volume=3, traded=0, status=Status.SUBMITTING, datetime=CHINA_TZ.localize(datetime(2020, 8, 13, 21, 0, 1)), reference=''),
@@ -317,7 +318,8 @@ if __name__ == "__main__":
             OrderData(gateway_name='CTP', symbol='ag2012', exchange=Exchange.SHFE, orderid='3_1962356227_1', type=OrderType.LIMIT, direction=Direction.SHORT, offset=Offset.CLOSEYESTERDAY, price=5870.0, volume=12, traded=0, status=Status.SUBMITTING, datetime=CHINA_TZ.localize(datetime(2020, 8, 14, 1, 44,20)), reference=''),
             OrderData(gateway_name='CTP', symbol='ag2012', exchange=Exchange.SHFE, orderid='3_1962356227_1', type=OrderType.LIMIT, direction=Direction.SHORT, offset=Offset.CLOSEYESTERDAY, price=5870.0, volume=12, traded=0, status=Status.SUBMITTING, datetime=CHINA_TZ.localize(datetime(2020, 8, 14, 1, 44,25)), reference=''),
             OrderData(gateway_name='CTP', symbol='ag2012', exchange=Exchange.SHFE, orderid='3_1962356227_1', type=OrderType.LIMIT, direction=Direction.SHORT, offset=Offset.CLOSEYESTERDAY, price=5870.0, volume=12, traded=12, status=Status.ALLTRADED, datetime=CHINA_TZ.localize(datetime(2020, 8, 14, 1, 44,35)), reference=''),
-        ]'''
+        ]
+    '''
 
         
         
@@ -350,7 +352,7 @@ if __name__ == "__main__":
     
 
         
-    newbars=ConvertBar(bars,60)
+    newbars=ConvertBar(bars,300)
     
     print(f"一共读取{len(bars)}根K线")
 
