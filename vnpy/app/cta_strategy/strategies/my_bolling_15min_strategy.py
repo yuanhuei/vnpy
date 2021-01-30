@@ -422,7 +422,7 @@ class MyBolling15MinStrategy(CtaTemplate):
     def on_15Min_bar(self, bar: BarData):
         """15分钟K线推送"""
         t1=str(bar.datetime)
-        t2=str(datetime(2011,1,10,9,00,0))
+        t2=str(datetime(2017,2,10,9,00,0))
         if t2 in t1:
             i=0    
         if not self.am15.inited or not self.am30.inited or not self.amDay.inited:
@@ -457,7 +457,8 @@ class MyBolling15MinStrategy(CtaTemplate):
         self.shortEntry=self.bollDown15-self.priceTick      
         self.shortExit=self.bollUp15+self.priceTick
         zhishun=self.bollUp15-self.bollDown15
-        volume=self.caculate_pos(zhishun)    
+        volume=self.caculate_pos(zhishun) 
+
         #volume=self.fixedSize
         #pos=self.posdata[-1]
         
@@ -466,7 +467,7 @@ class MyBolling15MinStrategy(CtaTemplate):
             import sys
             sys.exit(1)
         
-        if self.pos==0:  #无仓位
+        if self.pos==0 and volume!=0:  #无仓位
             if self.FifteenMinTrendStatus!='duotou' and (self.ThirtyMinTrendStatus=='duotou' and self.DayTrendStatus=='duotou'):
                 self.buy(self.longEntry, volume, True)            
             elif self.FifteenMinTrendStatus!='kongtou' and (self.ThirtyMinTrendStatus=='kongtou' and self.DayTrendStatus=='kongtou'):  

@@ -325,15 +325,15 @@ if __name__ == "__main__":
         
 
 
-    # 开始测试代码
+    # #橡胶ru99.CFFEX,焦炭j99.DCE,螺纹钢rb888.SHFE,铜cu888.SHFE,鸡蛋jd99.DCE,铁矿石i99.DCE,豆粕m99.CFFEX,玉米c99.DCE
     app = create_qapp()
     import sys
     print(sys.path)
-    symbol = "rb888"
+    symbol = "cu888"
     exchange = Exchange.SHFE
     interval=Interval.MINUTE
     start=datetime(2015, 11, 2)
-    end=datetime(2016, 6, 1)    
+    end=datetime(2018, 6, 1)    
 
     dynamic = False  # 是否动态演示
     n = 1000          # 缓冲K线根数
@@ -352,7 +352,7 @@ if __name__ == "__main__":
     
 
         
-    newbars=ConvertBar(bars,300)
+    newbars=ConvertBar(bars,show_minute)
     
     print(f"一共读取{len(bars)}根K线")
 

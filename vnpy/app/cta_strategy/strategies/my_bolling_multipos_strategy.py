@@ -465,7 +465,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
     def on_30Min_bar(self, bar: BarData):
         """30分钟K线推送"""
         t1=str(bar.datetime)
-        t2=str(datetime(2011,11,2,10,00,0))
+        t2=str(datetime(2017,2,13,9,00,0))
         if t2 in t1:
             i=0
             
@@ -510,7 +510,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
             import sys
             sys.exit(1)
         
-        if self.pos==0:  #无仓位
+        if self.pos==0 and volume!=0:  #无仓位
             if self.ThirtyMinTrendStatus!='duotou' and self.DayTrendStatus=='duotou':
                 self.buy(self.longEntry, volume, True)            
             elif self.ThirtyMinTrendStatus!='kongtou' and self.DayTrendStatus=='kongtou':  
@@ -524,7 +524,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
                     self.posdata[-1].baoben=True
                 
              #最后一个交易为平仓单或者是开仓单但是已经保本了，发送开仓单在布林线上下轨
-            if trade.offset==Offset.CLOSE or self.lastTrade_baoben==True:   
+            if (trade.offset==Offset.CLOSE or self.lastTrade_baoben==True) and volume!=0:   
                 if self.ThirtyMinTrendStatus!='duotou' and self.DayTrendStatus=='duotou':
                     self.buy(self.longEntry, volume, True)            
                 elif self.ThirtyMinTrendStatus!='kongtou' and self.DayTrendStatus=='kongtou':                     
@@ -545,10 +545,20 @@ class MyBollingMultiPosStrategy(CtaTemplate):
                 volume=self.posdata[i].volume
                 if self.posdata[i].baoben==True:
                     if self.posdata[i].direction==Direction.LONG:
-                        orderList=self.sell(max(self.posdata[i].price,self.bollMidDay), volume, True)
+                        if len(self.posdata)>=4:
+                            longExit=max(self.posdata[i].price,self.bollMidDay,self.bollDown30)
+                        else:
+                            longExit=max(self.posdata[i].price,self.bollMidDay)
+                        longExit=max(self.posdata[i].price,self.bollMidDay)
+                        orderList=self.sell(longExit, volume, True)
                         #print (u"策略：%s,委托止损单，保本价格平仓"%self.className)          
                     elif self.posdata[i].direction==Direction.SHORT:
-                        orderList=self.cover(min(self.posdata[i].price,self.bollMidDay), volume, True)
+                        if len(self.posdata)>=4:
+                            shortExit=min(self.posdata[i].price,self.bollMidDay,self.bollUp30)
+                        else:
+                            shortExit=min(self.posdata[i].price,self.bollMidDay)
+                        shortExit=min(self.posdata[i].price,self.bollMidDay)
+                        orderList=self.cover(shortExit, volume, True)
                         #print (u"策略：%s,委托止损单，保本价格平仓"%self.className)
                 i=i+1    
             #需要在日线中轨止损的单子，需要在新的日线中轨处发出止损单

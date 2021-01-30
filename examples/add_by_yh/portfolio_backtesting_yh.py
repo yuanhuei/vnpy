@@ -38,12 +38,13 @@ def show_portafolio(df):
     engine.show_chart(df)
     
 df1 = run_backtesting(
-    strategy_class=MyBollingMultiPosStrategy, 
+    strategy_class=MyBollingDayStrategy, 
     setting={}, 
-    vt_symbol="rb888.SHFE",
+    vt_symbol="cu888.SHFE",
+    #橡胶ru99.CFFEX,焦炭j99.DCE,螺纹钢rb888.SHFE,铜cu888.SHFE,鸡蛋jd99.DCE,铁矿石i99.DCE,豆粕m99.CFFEX,玉米c99.DCE
     interval="1m", 
-    start=datetime(2010, 1, 1), 
-    end=datetime(2018, 4, 30),
+    start=datetime(2015, 1, 1), 
+    end=datetime(2020, 4, 30),
     rate=0.3/10000,
     slippage=1,
     size=10,
@@ -52,21 +53,46 @@ df1 = run_backtesting(
     )
 
 df2 = run_backtesting(
-    strategy_class=MyBolling15MinStrategy, 
-    setting={'bollWindow5min': 16}, 
-    vt_symbol="rb888.SHFE",
+    strategy_class=MyBollingMultiPosStrategy, 
+    setting={}, 
+    vt_symbol="cu888.SHFE",
     interval="1m", 
-    start=datetime(2010, 1, 1), 
-    end=datetime(2018, 4, 30),
+    start=datetime(2015, 1, 1), 
+    end=datetime(2020, 4, 30),
     rate=0.3/10000,
     slippage=1,
     size=10,
     pricetick=0.2,
     capital=1_000_000,
     )
-
-
-
-dfp = df1+df2
+df3 = run_backtesting(
+    strategy_class=MyBolling15MinStrategy, 
+    setting={}, 
+    vt_symbol="cu888.SHFE",
+    interval="1m", 
+    start=datetime(2015, 1, 1), 
+    end=datetime(2020, 4, 30),
+    rate=0.3/10000,
+    slippage=1,
+    size=10,
+    pricetick=0.2,
+    capital=1_000_000,
+    )
+'''
+df4 = run_backtesting(
+    strategy_class=MyBollingDayStrategy, 
+    setting={}, 
+    vt_symbol="cu888.SHFE",
+    interval="1m", 
+    start=datetime(2010, 1, 1), 
+    end=datetime(2020, 4, 30),
+    rate=0.3/10000,
+    slippage=1,
+    size=10,
+    pricetick=0.2,
+    capital=1_000_000,
+    )
+'''
+dfp = df1+df2+df3
 dfp =dfp.dropna() 
 show_portafolio(dfp)    

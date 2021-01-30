@@ -66,7 +66,7 @@ class MyBollingDayStrategy(CtaTemplate):
     #exitDev = 1.2           # 平仓偏差
     #trailingPrcnt = 0.4     # 移动止损百分比
     #maWindow = 10           # 过滤用均线窗口
-    initDays = 15           # 初始化数据所用的天数
+    initDays = 33           # 初始化数据所用的天数
     fixedSize = 1           # 每次交易的数量
     priceTick = 0.2         # 价格最小变动 
     
@@ -192,9 +192,9 @@ class MyBollingDayStrategy(CtaTemplate):
         write_csv_file(current_path+"\\datasigDay.csv",head,None,"w")
         
         head=["datetime","orderid","tradeid","direction","offset","price","volume"]
-        write_csv_file("datasigTrade.csv",head,None,"w")
+        write_csv_file(current_path+"\\datasigTrade.csv",head,None,"w")
         head=["datetime","orderid","tradeid","direction","offset","price","volume","baoben"]
-        write_csv_file("datasigPos.csv",head,None,"w")        
+        write_csv_file(current_path+"\\datasigPos.csv",head,None,"w")        
         
         print("self.cta_engine.capital %d",self.cta_engine.capital)
   
@@ -249,7 +249,15 @@ class MyBollingDayStrategy(CtaTemplate):
         self.bm15.update_bar(bar)
         # 基于5分钟更新
         self.bm5.update_bar(bar)        
-        
+        '''
+        if  self.amDay.inited:
+            self.onDayBar(bar)
+            return
+        else:
+            self.amDay.update_bar(bar)
+            return
+        '''              
+       
         #判断当前5Min布林线趋势状态
         if not self.am5.inited or not self.am15.inited or not self.am30.inited or not self.amDay.inited:
             return
@@ -560,7 +568,7 @@ class MyBollingDayStrategy(CtaTemplate):
     def onDayBar(self, bar: BarData):
         """日K线推送"""
         t1=str(bar.datetime)
-        t2=str(datetime(2010,7,15,9,0,0))
+        t2=str(datetime(2016,1,28,21,0,0))
         if t2 in t1:
             i=0        
         if not self.amDay.inited:
@@ -600,6 +608,7 @@ class MyBollingDayStrategy(CtaTemplate):
         self.shortExit=self.bollMidDay+self.priceTick
           
         #需要在日线中轨止损的单子，需要在新的日线中轨处发出止损单
+        self.cancel_all()
         #if len(self.tradedata_day)>0:
         if self.pos!=0:
             if self.pos>0:
@@ -625,7 +634,7 @@ class MyBollingDayStrategy(CtaTemplate):
         zhishun=(self.bollUpDay-self.bollDownDay)/2
         volume=self.caculate_pos(zhishun)            
         #日线盘整，上下轨开仓  
-        if self.DayTrendStatus=="panzhen" and self.pos==0:#len(self.tradedata_day)==0:
+        if self.DayTrendStatus=="panzhen" and self.pos==0 and volume!=0:#len(self.tradedata_day)==0:
             self.cancel_all()
             orderList=[]
             orderList=self.buy(self.bollUpDay+self.priceTick, volume, True)
@@ -643,8 +652,8 @@ class MyBollingDayStrategy(CtaTemplate):
                 print (u"策略：%s,委托单失败"%self.className )             
                 
         
-        bardata=[bar.datetime,self.DayTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,self.pos,int(self.bollDown15),int(self.bollMid15),int(self.bollUp15),self.dealopen]
-        write_csv_file("datasigDay.csv",None,bardata,"a+")        
+        bardata=[bar.datetime,self.DayTrendStatus,bar.open_price, bar.close_price, bar.high_price, bar.low_price,self.pos,int(self.bollDownDay),int(self.bollMidDay),int(self.bollUpDay),self.dealopen]
+        write_csv_file(os.getcwd()+"\\datasigDay.csv",None,bardata,"a+")        
         print(u"日线刷新---------------")
         print(u"时间(日线刷新)：",bar.datetime)
         print (u"策略:%s,日线刷新，趋势状态,日线趋势%s,15分钟趋势%s,30分钟趋势%s,5分钟趋势%s"%(self.className,self.DayTrendStatus,self.FifteenMinTrendStatus,self.ThirtyMinTrendStatus,self.FiveMinTrendStatus))
@@ -680,13 +689,14 @@ class MyBollingDayStrategy(CtaTemplate):
         #所有交易单保存下来
         self.tradedata.append(trade)
         #开仓成功加入仓位list,平仓成功，删除最后加仓的仓位
+        self.cancel_all()
         if trade.offset==Offset.OPEN:
             self.tradedata_day.append(trade)
             self.tradedata_day[-1].baoben==False
             self.lastTrade_baoben=False
            
         if trade.offset==Offset.CLOSE:
-            self.cancel_all()
+            #self.cancel_all()
             if len(self.tradedata_day)>0:
                 self.tradedata_day.pop()
             if len(self.posdata)>=1: #这一单平仓后，仓位list中还有仓位，说明上一个仓位是已经保本的仓位i
@@ -739,7 +749,29 @@ class MyBollingDayStrategy(CtaTemplate):
             if orderList:
                 print( u"委托单成功单号",orderList)    
             else :
-                print (u"委托单失败")             
+                print (u"委托单失败") 
+        
+        elif trade.offset==Offset.CLOSE:
+            zhishun=(self.bollUpDay-self.bollDownDay)/2
+            volume=self.caculate_pos(zhishun)            
+            #日线盘整，上下轨开仓  
+            if  self.pos==0  and volume!=0:#len(self.tradedata_day)==0:
+                self.cancel_all()
+                orderList=[]
+                orderList=self.buy(self.bollUpDay+self.priceTick, volume, True)
+                print (u"策略：%s,委托多单，日线上轨开仓"%self.className)
+                if orderList:
+                    print (u"策略：%s,委托单成功,单号%s"%(self.className,orderList[-1]))
+                else:
+                    print (u"策略：%s,委托单失败"%self.className)              
+                orderList=[]    
+                orderList=self.short(self.bollDownDay-self.priceTick, volume, True)
+                print (u"策略：%s,委托空单，日线下轨开仓"%self.className)                       
+                if orderList:
+                    print (u"策略：%s,委托单成功,单号%s"%(self.className,orderList[-1]))
+                else:
+                    print (u"策略：%s,委托单失败"%self.className )                
+        
         #更新周期状态          
         if trade.offset==Offset.OPEN:
             if trade.direction==Direction.LONG:

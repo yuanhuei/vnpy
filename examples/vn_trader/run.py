@@ -47,7 +47,7 @@ from vnpy.gateway.ctp import CtpGateway
 # from vnpy.gateway.xgj import XgjGateway
 # from vnpy.gateway.alpaca import AlpacaGateway
 
-# from vnpy.app.cta_strategy import CtaStrategyApp
+from vnpy.app.cta_strategy import CtaStrategyApp
 
 # from vnpy.app.csv_loader import CsvLoaderApp
 # from vnpy.app.algo_trading import AlgoTradingApp
@@ -73,7 +73,7 @@ from vnpy.app.portfolio_strategy import PortfolioStrategyApp
 # from vnpy.app.data_manager import DataManagerApp
 # from vnpy.app.data_recorder import DataRecorderApp
 # from vnpy.app.risk_manager import RiskManagerApp
-# from vnpy.app.portfolio_manager import PortfolioManagerApp
+from vnpy.app.portfolio_manager import PortfolioManagerApp
 # from vnpy.app.paper_account import PaperAccountApp
 
 
@@ -128,7 +128,7 @@ def main():
     # main_engine.add_gateway(XgjGateway)       
     # main_engine.add_gateway(AlpacaGateway)
 
-    # main_engine.add_app(CtaStrategyApp)
+    main_engine.add_app(CtaStrategyApp)
     
     # main_engine.add_app(CsvLoaderApp)
     # main_engine.add_app(AlgoTradingApp)
@@ -152,7 +152,7 @@ def main():
     
     # main_engine.add_app(DataRecorderApp)
     # main_engine.add_app(RiskManagerApp)
-    # main_engine.add_app(PortfolioManagerApp)
+    main_engine.add_app(PortfolioManagerApp)
     # main_engine.add_app(PaperAccountApp)
 
 
