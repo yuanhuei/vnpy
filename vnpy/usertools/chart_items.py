@@ -753,4 +753,137 @@ class BollItem(CandleItem):
     def clear_all(self) -> None:
         super().clear_all()
         self.boll_data = {}
+
+class KamaItem(CandleItem):
+    """"""
+
+    def __init__(self, manager: BarManager):
+        """"""
+        super().__init__(manager)
+
+        self.blue_pen: QtGui.QPen = pg.mkPen(color='y', width=1)
+        self.white_pen: QtGui.QPen = pg.mkPen(color='w', width=1)
+
+        self.boll_window = 30
+        self.boll_data = {}
+
+    def get_boll_value(self, ix: int):
+        """"""
+        if ix < self.boll_window-1:
+            return 0
+
+        # When initialize, calculate all rsi value
+        if not self.boll_data:
+            bars = self._manager.get_all_bars()
+            close_data = [bar.close_price for bar in bars]
+            low_data = [bar.low_price for bar in bars]
+            high_data = [bar.high_price for bar in bars]
+            #sma_array = talib.SMA(np.array(close_data), self.sma_window)
+            upper_array=talib.KAMA(np.array(high_data),30)
+            middle_array=talib.KAMA(np.array(close_data),30)
+            lower_array=talib.KAMA(np.array(low_data),30)
+            '''
+            upper_array,middle_array,lower_array=talib.BBANDS(
+               np.array(close_data), 
+                timeperiod=self.boll_window,
+                # number of non-biased standard deviations from the mean
+                nbdevup=2,
+                nbdevdn=2,
+                # Moving average type: simple moving average here
+                matype=0)
+            '''
+            for n, value in enumerate(upper_array):
+                if n<(self.boll_window-1):
+                    continue
+                self.boll_data[n] = {"upper":value,"middle":middle_array[n],"lower":lower_array[n]}
+
+        # Return if already calcualted
+        if ix in self.boll_data:
+            return self.boll_data[ix]
+
+        # Else calculate new value
+        close_data = []
+        low_data= []
+        high_data= []
+        for n in range(ix - self.boll_window, ix + 1):
+            bar = self._manager.get_bar(n)
+            close_data.append(bar.close_price)
+            ##
+            low_data.append(bar.low_price)
+            high_data.append(bar.high_price)
+            ##
+
+        #sma_array = talib.SMA(np.array(close_data), self.sma_window)
+        '''
+        upper_array,middle_array,lower_array=talib.BBANDS(
+           np.array(close_data), 
+            timeperiod=self.boll_window,
+            # number of non-biased standard deviations from the mean
+            nbdevup=2,
+            nbdevdn=2,
+            # Moving average type: simple moving average here
+            matype=0) 
+        '''
+
+        #sma_array = talib.SMA(np.array(close_data), self.sma_window)
+        upper_array=talib.KAMA(np.array(high_data),30)
+        middle_array=talib.KAMA(np.array(close_data),30)
+        lower_array=talib.KAMA(np.array(low_data),30)     
+        boll_value = {"upper":upper_array[-1],"middle":middle_array[-1],"lower":lower_array[-1]}
+        self.boll_data[ix] = boll_value
+
+        return boll_value
+
+    def _draw_bar_picture(self, ix: int, bar: BarData) -> QtGui.QPicture:
+        """"""
+        boll_value = self.get_boll_value(ix)
+        last_boll_value = self.get_boll_value(ix - 1)
+
+
+        # Create objects
+        picture = QtGui.QPicture()
+        painter = QtGui.QPainter(picture)
+
+        # Set painter color
+        painter.setPen(self.blue_pen)
+
+        if last_boll_value==0:
+            # Draw Line
+            start_point = QtCore.QPointF(0, 0)
+            end_point = QtCore.QPointF(0, 0)
+            painter.drawLine(start_point, end_point)
+        else:
+            # Draw Line
+            start_point = QtCore.QPointF(ix-1, last_boll_value["upper"])
+            end_point = QtCore.QPointF(ix, boll_value["upper"])
+            painter.drawLine(start_point, end_point)
+            
+            start_point = QtCore.QPointF(ix-1, last_boll_value["lower"])
+            end_point = QtCore.QPointF(ix, boll_value["lower"])
+            painter.drawLine(start_point, end_point)
+
+            start_point = QtCore.QPointF(ix-1, last_boll_value["middle"])
+            end_point = QtCore.QPointF(ix, boll_value["middle"])
+            painter.setPen(self.white_pen)
+            painter.drawLine(start_point, end_point)
+            
+
+        
+        # Finish
+        painter.end()
+        return picture
+
+    def get_info_text(self, ix: int) -> str:
+        """"""
+        if ix in self.boll_data:
+            boll_value = self.boll_data[ix]
+            text = f"boll {boll_value['middle']:.1f}"
+        else:
+            text = "boll -"
+
+        return text
+
+    def clear_all(self) -> None:
+        super().clear_all()
+        self.boll_data = {}
         

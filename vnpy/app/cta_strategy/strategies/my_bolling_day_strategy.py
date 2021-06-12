@@ -201,7 +201,7 @@ class MyBollingDayStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def caculate_pos(self,zhishun:float):
         pos=0
-        pos=self.cta_engine.capital*self.zhishunpercent//zhishun
+        pos=int(self.cta_engine.capital*self.zhishunpercent//zhishun)
         return pos
     
     def on_init(self):

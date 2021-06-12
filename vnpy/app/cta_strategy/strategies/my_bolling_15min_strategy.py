@@ -208,7 +208,7 @@ class MyBolling15MinStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def caculate_pos(self,zhishun:float):
         pos=0
-        pos=self.cta_engine.capital*self.zhishunpercent//zhishun
+        pos=int(self.cta_engine.capital*self.zhishunpercent//zhishun)
         return pos
     
     def on_init(self):
@@ -467,11 +467,13 @@ class MyBolling15MinStrategy(CtaTemplate):
             import sys
             sys.exit(1)
         
-        if self.pos==0 and volume!=0:  #无仓位
-            if self.FifteenMinTrendStatus!='duotou' and (self.ThirtyMinTrendStatus=='duotou' and self.DayTrendStatus=='duotou'):
-                self.buy(self.longEntry, volume, True)            
+        if self.pos==0:  #无仓位
+            if self.FifteenMinTrendStatus!='duotou' and (self.ThirtyMinTrendStatus=='duotou' and self.DayTrendStatus=='duotou'):                
+                if volume!=0:
+                    self.buy(self.longEntry, volume, True)            
             elif self.FifteenMinTrendStatus!='kongtou' and (self.ThirtyMinTrendStatus=='kongtou' and self.DayTrendStatus=='kongtou'):  
-                self.short(self.shortEntry,volume,True)    
+                if volume!=0:
+                    self.short(self.shortEntry,volume,True)    
         else:            #有仓位
             #如果最后一个单子为开仓单，判断是否保本了
             trade=self.tradedata[-1]

@@ -12,6 +12,9 @@ from vnpy.app.cta_strategy.strategies.my_bolling_day_strategy import (
 from vnpy.app.cta_strategy.strategies.my_bolling_15min_strategy import (
     MyBolling15MinStrategy,
 )
+from vnpy.app.cta_strategy.strategies.my_kama_3min_strategy import (
+    MyKama3MinStrategy,
+)
 from datetime import datetime
 '''
 # 交易所类型
@@ -26,18 +29,19 @@ EXCHANGE_SGE = 'SGE'       # 上金所
 #%%
 engine = BacktestingEngine()
 engine.set_parameters(
-    vt_symbol="cu888.SHFE", 
+    vt_symbol="pvc99.DCE", 
     #橡胶ru99.CFFEX,焦炭j99.DCE,螺纹钢rb888.SHFE,铜cu888.SHFE,鸡蛋jd99.DCE,铁矿石i99.DCE,豆粕m99.CFFEX,玉米c99.DCE
+    #郑醇ma99.CZCE,pp99.DCE,pvc99.DCE,pta99.CZCE，al99.SHFE,zn99.SHFE
     interval="1m",
-    start=datetime(2015, 1, 16),
-    end=datetime(2020, 1, 16),
+    start=datetime(2010, 1, 16),
+    end=datetime(2020, 5, 16),
     rate=0.3/10000,
     slippage=1,
     size=10,
     pricetick=0.2,
     capital=1_000_000,
 )
-engine.add_strategy(MyBolling15MinStrategy, {})
+engine.add_strategy(MyBollingDayStrategy, {})
 
 #%%
 engine.load_data()

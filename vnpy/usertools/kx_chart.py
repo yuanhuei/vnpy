@@ -57,6 +57,7 @@ from vnpy.usertools.chart_items import (
     TradeItem,
     OrderItem,
     BollItem,
+    KamaItem,
 )
 
 
@@ -81,7 +82,8 @@ class NewChartWidget(ChartWidget):
         self.add_item(CandleItem, "candle", "candle")
         #self.add_item(LineItem, "line", "candle")
         #self.add_item(SmaItem, "sma", "candle")
-        self.add_item(BollItem, "boll", "candle")
+        #self.add_item(BollItem, "boll", "candle")
+        self.add_item(KamaItem, "kama", "candle")
         
         self.add_item(OrderItem, "order", "candle")
         self.add_item(TradeItem, "trade", "candle")
@@ -332,8 +334,8 @@ if __name__ == "__main__":
     symbol = "cu888"
     exchange = Exchange.SHFE
     interval=Interval.MINUTE
-    start=datetime(2015, 11, 2)
-    end=datetime(2018, 6, 1)    
+    start=datetime(2015, 1, 2)
+    end=datetime(2015, 6, 1)    
 
     dynamic = False  # 是否动态演示
     n = 1000          # 缓冲K线根数
@@ -346,7 +348,7 @@ if __name__ == "__main__":
         end=end
     )
     
-    show_minute=15
+    show_minute=30
     print(f"一共读取{len(bars)}根1minute K线")
     print(f"一共读取{len(bars)//show_minute}根{show_minute}minute K线")
     

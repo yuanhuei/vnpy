@@ -204,7 +204,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def caculate_pos(self,zhishun:float):
         pos=0
-        pos=self.cta_engine.capital*self.zhishunpercent//zhishun
+        pos=int(self.cta_engine.capital*self.zhishunpercent//zhishun)
         return pos
     
     def on_init(self):
@@ -510,11 +510,13 @@ class MyBollingMultiPosStrategy(CtaTemplate):
             import sys
             sys.exit(1)
         
-        if self.pos==0 and volume!=0:  #无仓位
+        if self.pos==0:  #无仓位
             if self.ThirtyMinTrendStatus!='duotou' and self.DayTrendStatus=='duotou':
-                self.buy(self.longEntry, volume, True)            
+                if volume!=0:
+                    self.buy(self.longEntry, volume, True)            
             elif self.ThirtyMinTrendStatus!='kongtou' and self.DayTrendStatus=='kongtou':  
-                self.short(self.shortEntry,volume,True)    
+                if volume!=0:
+                    self.short(self.shortEntry,volume,True)    
         else:            #有仓位
             #最后一个单子为开仓单，判断是否保本了
             trade=self.tradedata[-1]
@@ -524,7 +526,7 @@ class MyBollingMultiPosStrategy(CtaTemplate):
                     self.posdata[-1].baoben=True
                 
              #最后一个交易为平仓单或者是开仓单但是已经保本了，发送开仓单在布林线上下轨
-            if (trade.offset==Offset.CLOSE or self.lastTrade_baoben==True) and volume!=0:   
+            if self.posdata[-1].baoben==True and volume!=0:
                 if self.ThirtyMinTrendStatus!='duotou' and self.DayTrendStatus=='duotou':
                     self.buy(self.longEntry, volume, True)            
                 elif self.ThirtyMinTrendStatus!='kongtou' and self.DayTrendStatus=='kongtou':                     
