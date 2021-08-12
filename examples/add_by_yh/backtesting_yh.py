@@ -19,6 +19,13 @@ from vnpy.app.cta_strategy.strategies.my_R_Break_strategy import (
     RBreakStrategy,
 )
 from datetime import datetime
+import io
+
+import sys
+
+#改变标准输出的默认编码
+
+#sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 '''
 # 交易所类型
 EXCHANGE_SSE = 'SSE'       # 上交所

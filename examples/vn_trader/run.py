@@ -72,7 +72,7 @@ from vnpy.app.portfolio_strategy import PortfolioStrategyApp
 
 # from vnpy.app.data_manager import DataManagerApp
 # from vnpy.app.data_recorder import DataRecorderApp
-# from vnpy.app.risk_manager import RiskManagerApp
+from vnpy.app.risk_manager import RiskManagerApp
 from vnpy.app.portfolio_manager import PortfolioManagerApp
 # from vnpy.app.paper_account import PaperAccountApp
 
@@ -133,7 +133,7 @@ def main():
     # main_engine.add_app(CsvLoaderApp)
     # main_engine.add_app(AlgoTradingApp)
     # main_engine.add_app(DataRecorderApp)
-    # main_engine.add_app(RiskManagerApp)
+    main_engine.add_app(RiskManagerApp)
     # main_engine.add_app(ScriptTraderApp)
     # main_engine.add_app(RpcServiceApp)
     main_engine.add_app(CtaBacktesterApp)
