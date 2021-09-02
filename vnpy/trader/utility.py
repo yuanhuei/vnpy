@@ -318,12 +318,26 @@ class BarGenerator:
                             self.interval_count = 0
 
         elif self.interval == Interval.DAILY:
-            ''' 如果当天的最后一个收盘时间事14.59，进行合成，生成日线bar'''
-            tem=str(bar.datetime)[11:-6]
-            if self.last_bar and str(bar.datetime)[11:-6]=='14:59:00':
-               
-                finished = True
-                self.interval_count = 0
+
+            if self.last_bar:
+                ''' 如果当天的最后一个收盘时间事14.59，进行合成，生成日线bar'''
+                tem=str(bar.datetime)[11:-6]
+                last_minute= str(bar.datetime)[11:-6]=='14:59:00'
+                not_first = self.window_bar.datetime != bar.datetime
+
+                # To filter duplicate day bar finished condition
+                if last_minute and not_first:
+                    # 1-day bar
+                    if self.window == 1:
+                        finished = True
+                    # x-day bar
+                    else:
+                        self.interval_count += 1
+
+                        if not self.interval_count % self.window:
+                            finished = True
+                            self.interval_count = 0            
+
         if finished:
             self.on_window_bar(self.window_bar)
             self.window_bar = None

@@ -3,7 +3,7 @@ import csv
 
 
 def write_csv_file(path,head,row,mode='r'):  
-    WriterLog=True
+    WriterLog=False
     if WriterLog==False:
         return
     try:  

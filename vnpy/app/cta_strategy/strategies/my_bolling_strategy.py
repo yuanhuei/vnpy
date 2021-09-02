@@ -43,6 +43,7 @@ from vnpy.app.cta_strategy import (
 )
 '''
 日线小时策略，日线空头或多头的时候，小时上下轨开仓，下上轨平仓，不加仓
+暂未使用
 '''
 
 class MyBollingStrategy(CtaTemplate):

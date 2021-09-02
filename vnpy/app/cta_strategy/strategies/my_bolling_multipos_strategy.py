@@ -67,8 +67,9 @@ class MyBollingMultiPosStrategy(CtaTemplate):
     #trailingPrcnt = 0.4     # 移动止损百分比
     #maWindow = 10           # 过滤用均线窗口
     initDays = 15           # 初始化数据所用的天数
-    fixedSize = 1           # 每次交易的数量
-    priceTick = 0.2         # 价格最小变动 
+    fixedSize = 5          # 每次交易的数量
+    priceTick = 0.5         # 价格最小变动 
+    size=100                #合约大小
     
     DayTrendStatus='panzhen'  #DuoTou, KongTou,Panzheng
     FifteenMinTrendStatus='panzhen'
@@ -173,6 +174,10 @@ class MyBollingMultiPosStrategy(CtaTemplate):
         """Constructor"""
         #super(MyBollingerBotStrategy, self).__init__(ctaEngine, setting)
         super().__init__(ctaEngine, strategy_name, vt_symbol, setting)
+        if"size" in setting:
+            self.size=setting["size"]
+        if"pricetick" in setting:
+            self.priceTick=setting["pircetick"]
         
         self.bm5 = BarGenerator(self.on_bar, 5, self.on_5Min_bar)
         self.am5 = ArrayManager(80)
@@ -204,8 +209,8 @@ class MyBollingMultiPosStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def caculate_pos(self,zhishun:float):
         pos=0
-        pos=int(self.cta_engine.capital*self.zhishunpercent//zhishun)
-        return pos
+        pos=int(self.cta_engine.capital*self.zhishunpercent//(zhishun*self.size))
+        return self.fixedSize
     
     def on_init(self):
         """初始化策略（必须由用户继承实现）"""

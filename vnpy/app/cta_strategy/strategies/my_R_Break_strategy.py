@@ -9,6 +9,7 @@ from vnpy.app.cta_strategy import (
     BarGenerator,
     ArrayManager
 )
+from vnpy.trader.constant import Exchange, Interval,Offset,Direction
 
 class RBreakStrategy(CtaTemplate):
     """"""
@@ -44,6 +45,8 @@ class RBreakStrategy(CtaTemplate):
     day_low = 0
     tend_high = 0
     tend_low = 0
+    
+    num_of_kaicang=0
     
     exit_time = time(hour=14, minute=55)
     
@@ -105,6 +108,7 @@ class RBreakStrategy(CtaTemplate):
         
         # New Day
         if last_bar.datetime.date() != bar.datetime.date():
+            self.num_of_kaicang=0
             if self.day_open:
                 
                 self.buy_setup = self.day_low - self.setup_coef * (self.day_high - self.day_close)  # 观察买入价
@@ -140,15 +144,15 @@ class RBreakStrategy(CtaTemplate):
                 
                 if self.tend_high > self.sell_setup:
                     long_entry = max(self.buy_break, self.day_high)
-                    self.buy(long_entry, self.fixed_size, stop=True)
-                    
-                    self.short(self.sell_enter, self.multiplier * self.fixed_size, stop=True)
+                    if self.num_of_kaicang==0:
+                        self.buy(long_entry, self.fixed_size, stop=True)
+                        self.short(self.sell_enter, self.multiplier * self.fixed_size, stop=True)
                 
                 elif self.tend_low < self.buy_setup:
                     short_entry = min(self.sell_break, self.day_low)
-                    self.short(short_entry, self.fixed_size, stop=True)
-                    
-                    self.buy(self.buy_enter, self.multiplier * self.fixed_size, stop=True)
+                    if self.num_of_kaicang==0:
+                        self.short(short_entry, self.fixed_size, stop=True)
+                        self.buy(self.buy_enter, self.multiplier * self.fixed_size, stop=True)
                 
                 
             elif self.pos > 0:
@@ -182,6 +186,10 @@ class RBreakStrategy(CtaTemplate):
         """
         Callback of new trade data update.
         """
+        if trade.offset==offset.OPEN:
+            self.num_of_kaicang=self.num_of_kaicang+1
+
+        
         self.put_event()
         
     def on_stop_order(self, stop_order: StopOrder):

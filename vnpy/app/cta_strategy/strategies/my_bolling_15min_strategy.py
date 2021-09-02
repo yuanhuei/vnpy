@@ -43,7 +43,7 @@ from vnpy.app.cta_strategy import (
     ArrayManager,
 )
 '''
-日线小时策略，日线多头，小时上轨开仓，下轨平仓，保本后再依次加仓，最后在日线中轨止损。空头类似
+日线15MIN策略，日线多头，上轨开仓，下轨平仓，保本后再依次加仓，最后在日线中轨止损。空头类似
 '''
 
 class MyBolling15MinStrategy(CtaTemplate):
@@ -67,7 +67,7 @@ class MyBolling15MinStrategy(CtaTemplate):
     #trailingPrcnt = 0.4     # 移动止损百分比
     #maWindow = 10           # 过滤用均线窗口
     initDays = 15           # 初始化数据所用的天数
-    fixedSize = 1           # 每次交易的数量
+    fixedSize = 3          # 每次交易的数量
     priceTick = 0.2         # 价格最小变动 
     
     DayTrendStatus='panzhen'  #DuoTou, KongTou,Panzheng
